@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${catchRecord.species.commonName}">Catch</title>
+</head>
+<body>
+
+<p><a th:href="@{/catches}">Back to journal</a></p>
+
+<h1 th:text="${catchRecord.species.commonName}">Species name</h1>
+
+<dl>
+    <dt>Caught at</dt>
+    <dd th:text="${catchRecord.caughtAt}">time</dd>
+
+    <dt>Weight</dt>
+    <dd th:text="${catchRecord.weightKg != null ? catchRecord.weightKg + ' kg' : 'Not recorded'}">weight</dd>
+
+    <dt>Length</dt>
+    <dd th:text="${catchRecord.lengthCm != null ? catchRecord.lengthCm + ' cm' : 'Not recorded'}">length</dd>
+
+    <dt>Circumference</dt>
+    <dd th:text="${catchRecord.circumferenceCm != null ? catchRecord.circumferenceCm + ' cm' : 'Not recorded'}">girth</dd>
+
+    <dt>Location</dt>
+    <dd th:if="${catchRecord.latitude != null}"
+        th:text="${catchRecord.latitude} + ', ' + ${catchRecord.longitude}">coordinates</dd>
+    <dd th:if="${catchRecord.latitude == null}">Not recorded</dd>
+
+    <dt>Notes</dt>
+    <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>
+</dl>
+
+</body>
+</html>

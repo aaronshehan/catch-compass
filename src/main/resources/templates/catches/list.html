@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Catch journal</title>
+</head>
+<body>
+
+<h1>Catch journal</h1>
+
+<p th:if="${catches.isEmpty()}">
+    No catches logged yet.
+</p>
+
+<ul th:unless="${catches.isEmpty()}">
+    <li th:each="entry : ${catches}">
+        <a th:href="@{/catches/{id}(id=${entry.id})}"
+           th:text="${entry.species.commonName}">Species name</a>
+        <span th:text="${entry.caughtAt}">caught at</span>
+        <span th:if="${entry.weightKg != null}"
+              th:text="'- ' + ${entry.weightKg} + ' kg'"></span>
+    </li>
+</ul>
+
+</body>
+</html>
