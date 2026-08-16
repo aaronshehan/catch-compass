@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log a catch</title>
+</head>
+<body>
+
+<p><a th:href="@{/catches}">Back to journal</a></p>
+
+<h1>Log a catch</h1>
+
+<form th:action="@{/catches}" th:object="${catchForm}" method="post">
+
+    <p>
+        <label for="speciesId">Species</label><br>
+        <select id="speciesId" th:field="*{speciesId}">
+            <option value="">Choose a species</option>
+            <option th:each="option : ${speciesOptions}"
+                    th:value="${option.id}"
+                    th:text="${option.commonName}">Species</option>
+        </select>
+        <span th:if="${#fields.hasErrors('speciesId')}" th:errors="*{speciesId}">error</span>
+    </p>
+
+    <p>
+        <label for="caughtAt">Caught at</label><br>
+        <input type="datetime-local" id="caughtAt" th:field="*{caughtAt}">
+        <span th:if="${#fields.hasErrors('caughtAt')}" th:errors="*{caughtAt}">error</span>
+    </p>
+
+    <fieldset>
+        <legend>Measurements (optional)</legend>
+
+        <p>
+            <label for="weightKg">Weight (kg)</label><br>
+            <input type="number" step="0.001" id="weightKg" th:field="*{weightKg}">
+            <span th:if="${#fields.hasErrors('weightKg')}" th:errors="*{weightKg}">error</span>
+        </p>
+
+        <p>
+            <label for="lengthCm">Length (cm)</label><br>
+            <input type="number" step="0.01" id="lengthCm" th:field="*{lengthCm}">
+            <span th:if="${#fields.hasErrors('lengthCm')}" th:errors="*{lengthCm}">error</span>
+        </p>
+
+        <p>
+            <label for="circumferenceCm">Circumference (cm)</label><br>
+            <input type="number" step="0.01" id="circumferenceCm" th:field="*{circumferenceCm}">
+            <span th:if="${#fields.hasErrors('circumferenceCm')}" th:errors="*{circumferenceCm}">error</span>
+        </p>
+    </fieldset>
+
+    <fieldset>
+        <legend>Location (optional)</legend>
+
+        <p>
+            <label for="latitude">Latitude</label><br>
+            <input type="number" step="any" id="latitude" th:field="*{latitude}">
+            <span th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}">error</span>
+        </p>
+
+        <p>
+            <label for="longitude">Longitude</label><br>
+            <input type="number" step="any" id="longitude" th:field="*{longitude}">
+            <span th:if="${#fields.hasErrors('longitude')}" th:errors="*{longitude}">error</span>
+        </p>
+
+        <p>
+            <label for="locationAccuracyMeters">Accuracy (metres)</label><br>
+            <input type="number" step="0.01" id="locationAccuracyMeters"
+                   th:field="*{locationAccuracyMeters}">
+            <span th:if="${#fields.hasErrors('locationAccuracyMeters')}"
+                  th:errors="*{locationAccuracyMeters}">error</span>
+        </p>
+    </fieldset>
+
+    <p>
+        <label for="notes">Notes</label><br>
+        <textarea id="notes" rows="4" cols="40" th:field="*{notes}"></textarea>
+        <span th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}">error</span>
+    </p>
+
+    <p><button type="submit">Save catch</button></p>
+
+</form>
+
+</body>
+</html>
