@@ -16,7 +16,7 @@
 </p>
 
 <form th:action="@{/catches}" th:object="${catchForm}" method="post"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data" data-location-form>
 
     <p>
         <label for="speciesId">Species</label><br>
@@ -68,6 +68,15 @@
         <legend>Location (optional)</legend>
 
         <p>
+            <button type="button" data-location-request>Use my current location</button>
+            <button type="button" data-location-clear>Clear location</button>
+        </p>
+
+        <p data-location-status role="status" aria-live="polite"></p>
+
+        <input type="hidden" id="locationRecordedAt" th:field="*{locationRecordedAt}">
+
+        <p>
             <label for="latitude">Latitude</label><br>
             <input type="number" step="any" id="latitude" th:field="*{latitude}">
             <span th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}">error</span>
@@ -97,6 +106,8 @@
     <p><button type="submit">Save catch</button></p>
 
 </form>
+
+<script th:src="@{/js/catch-location.js}" defer></script>
 
 </body>
 </html>

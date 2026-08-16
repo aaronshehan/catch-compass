@@ -59,10 +59,17 @@ public class CatchService {
         catchRecord.setLengthCm(form.getLengthCm());
         catchRecord.setCircumferenceCm(form.getCircumferenceCm());
         catchRecord.setNotes(form.getNotes());
-        catchRecord.setLocation(
-                form.getLatitude(),
-                form.getLongitude(),
-                form.getLocationAccuracyMeters());
+        if (form.getLatitude() != null) {
+            catchRecord.setLocation(
+                    form.getLatitude(),
+                    form.getLongitude(),
+                    form.getLocationAccuracyMeters(),
+                    form.getLocationRecordedAt());
+        } else {
+            // Guards the database rule that a reading time needs coordinates:
+            // a stale hidden field cannot survive the user clearing the location.
+            catchRecord.clearLocation();
+        }
 
         Catch saved = catchRepository.save(catchRecord);
 

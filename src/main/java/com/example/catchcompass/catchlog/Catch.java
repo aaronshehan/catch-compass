@@ -33,6 +33,12 @@ public class Catch {
     @Column(precision = 8, scale = 2)
     private BigDecimal locationAccuracyMeters;
 
+    /**
+     * When the device produced the reading, which is not the same as when the
+     * fish was caught or when the form was submitted.
+     */
+    private Instant locationRecordedAt;
+
     @Column(precision = 6, scale = 3)
     private BigDecimal weightKg;
 
@@ -77,16 +83,21 @@ public class Catch {
      * Latitude and longitude are stored as a pair, matching the database
      * constraint that requires both to be present or both absent.
      */
-    public void setLocation(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracyMeters) {
+    public void setLocation(BigDecimal latitude,
+                            BigDecimal longitude,
+                            BigDecimal accuracyMeters,
+                            Instant recordedAt) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.locationAccuracyMeters = accuracyMeters;
+        this.locationRecordedAt = recordedAt;
     }
 
     public void clearLocation() {
         this.latitude = null;
         this.longitude = null;
         this.locationAccuracyMeters = null;
+        this.locationRecordedAt = null;
     }
 
     public Long getId() { return id; }
@@ -96,6 +107,7 @@ public class Catch {
     public BigDecimal getLatitude() { return latitude; }
     public BigDecimal getLongitude() { return longitude; }
     public BigDecimal getLocationAccuracyMeters() { return locationAccuracyMeters; }
+    public Instant getLocationRecordedAt() { return locationRecordedAt; }
     public BigDecimal getWeightKg() { return weightKg; }
     public BigDecimal getLengthCm() { return lengthCm; }
     public BigDecimal getCircumferenceCm() { return circumferenceCm; }

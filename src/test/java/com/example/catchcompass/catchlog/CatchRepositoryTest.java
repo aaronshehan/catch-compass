@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Runs against a real PostgreSQL container, so the Flyway migrations, the
@@ -90,6 +92,16 @@ class CatchRepositoryTest {
         assertThat(found)
                 .as("ownership must be enforced by the query, not by the user interface")
                 .isEmpty();
+    }
+
+    @Test
+    void aLocationReadingTimeWithoutCoordinatesIsRejected() {
+        Catch catchRecord = new Catch(ALICE, anySpecies, Instant.now());
+        catchRecord.setLocation(null, null, null, Instant.now());
+
+        assertThatThrownBy(() -> catchRepository.saveAndFlush(catchRecord))
+                .as("the V3 CHECK constraint should refuse this")
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test

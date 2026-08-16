@@ -30,9 +30,15 @@
     <dd th:text="${catchRecord.circumferenceCm != null ? catchRecord.circumferenceCm + ' cm' : 'Not recorded'}">girth</dd>
 
     <dt>Location</dt>
-    <dd th:if="${catchRecord.latitude != null}"
-        th:text="${catchRecord.latitude} + ', ' + ${catchRecord.longitude}">coordinates</dd>
+    <dd th:if="${catchRecord.latitude != null}">
+        <span th:text="${catchRecord.latitude} + ', ' + ${catchRecord.longitude}">coordinates</span>
+        <span th:if="${catchRecord.locationAccuracyMeters != null}"
+              th:text="'(accurate to about ' + ${catchRecord.locationAccuracyMeters} + ' m)'"></span>
+    </dd>
     <dd th:if="${catchRecord.latitude == null}">Not recorded</dd>
+
+    <dt>Location read at</dt>
+    <dd th:text="${catchRecord.locationRecordedAt != null ? catchRecord.locationRecordedAt : 'Not recorded'}">time</dd>
 
     <dt>Notes</dt>
     <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>

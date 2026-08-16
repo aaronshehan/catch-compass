@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 /**
@@ -39,6 +40,12 @@ public class CatchForm {
     @Positive(message = "Accuracy must be greater than zero")
     @DecimalMax(value = "999999.99", message = "Accuracy is unrealistically large")
     private BigDecimal locationAccuracyMeters;
+
+    /**
+     * Set by the browser when a GPS reading succeeds. Not user-editable.
+     */
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Instant locationRecordedAt;
 
     @Positive(message = "Weight must be greater than zero")
     @DecimalMax(value = "999.999", message = "Weight must be under 1000 kg")
@@ -76,6 +83,11 @@ public class CatchForm {
     public BigDecimal getLocationAccuracyMeters() { return locationAccuracyMeters; }
     public void setLocationAccuracyMeters(BigDecimal locationAccuracyMeters) {
         this.locationAccuracyMeters = locationAccuracyMeters;
+    }
+
+    public Instant getLocationRecordedAt() { return locationRecordedAt; }
+    public void setLocationRecordedAt(Instant locationRecordedAt) {
+        this.locationRecordedAt = locationRecordedAt;
     }
 
     public BigDecimal getWeightKg() { return weightKg; }
