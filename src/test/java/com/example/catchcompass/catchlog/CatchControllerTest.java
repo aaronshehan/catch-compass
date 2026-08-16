@@ -4,6 +4,7 @@ import com.example.catchcompass.species.SpeciesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -14,6 +15,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -35,6 +37,9 @@ class CatchControllerTest {
 
     @MockitoBean
     private SpeciesRepository speciesRepository;
+
+    @MockitoBean
+    private CatchPhotoRepository catchPhotoRepository;
 
     private static String anHourAgo() {
         return LocalDateTime.now().minusHours(1).toString();
@@ -96,6 +101,21 @@ class CatchControllerTest {
                         .param("weightKg", "2.45"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/catches/42"));
+    }
+
+    @Test
+    void rejectedPhotoBecomesAFieldErrorRatherThanAFailedRequest() throws Exception {
+        given(catchService.create(any(), any()))
+                .willThrow(new PhotoUploadException("Photos must be a JPEG or PNG image"));
+
+        mockMvc.perform(multipart("/catches")
+                        .file(new MockMultipartFile(
+                                "photo", "notes.txt", "text/plain", "not an image".getBytes()))
+                        .param("speciesId", "1")
+                        .param("caughtAt", anHourAgo()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("catches/new"))
+                .andExpect(model().attributeHasFieldErrors("catchForm", "photo"));
     }
 
     @Test

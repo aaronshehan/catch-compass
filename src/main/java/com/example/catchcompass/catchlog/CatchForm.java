@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -54,6 +55,12 @@ public class CatchForm {
     @Size(max = 2000, message = "Notes must be 2000 characters or fewer")
     private String notes;
 
+    /**
+     * Optional. Content is validated in CatchPhotoService rather than by an
+     * annotation, because proving a file is really an image means decoding it.
+     */
+    private MultipartFile photo;
+
     public Long getSpeciesId() { return speciesId; }
     public void setSpeciesId(Long speciesId) { this.speciesId = speciesId; }
 
@@ -82,4 +89,7 @@ public class CatchForm {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public MultipartFile getPhoto() { return photo; }
+    public void setPhoto(MultipartFile photo) { this.photo = photo; }
 }

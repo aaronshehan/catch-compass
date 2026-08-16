@@ -11,6 +11,11 @@
 
 <h1 th:text="${catchRecord.species.commonName}">Species name</h1>
 
+<img th:if="${hasPhoto}"
+     th:src="@{/catches/{id}/photo(id=${catchRecord.id})}"
+     alt="Photo of the catch"
+     style="max-width: 100%; height: auto;">
+
 <dl>
     <dt>Caught at</dt>
     <dd th:text="${catchRecord.caughtAt}">time</dd>

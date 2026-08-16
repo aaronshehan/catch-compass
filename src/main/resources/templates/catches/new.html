@@ -11,7 +11,12 @@
 
 <h1>Log a catch</h1>
 
-<form th:action="@{/catches}" th:object="${catchForm}" method="post">
+<p th:if="${uploadTooLarge}">
+    That photo is too large. Please choose an image under 10 MB.
+</p>
+
+<form th:action="@{/catches}" th:object="${catchForm}" method="post"
+      enctype="multipart/form-data">
 
     <p>
         <label for="speciesId">Species</label><br>
@@ -28,6 +33,13 @@
         <label for="caughtAt">Caught at</label><br>
         <input type="datetime-local" id="caughtAt" th:field="*{caughtAt}">
         <span th:if="${#fields.hasErrors('caughtAt')}" th:errors="*{caughtAt}">error</span>
+    </p>
+
+    <p>
+        <label for="photo">Photo</label><br>
+        <input type="file" id="photo" name="photo"
+               accept="image/jpeg,image/png" capture="environment">
+        <span th:if="${#fields.hasErrors('photo')}" th:errors="*{photo}">error</span>
     </p>
 
     <fieldset>

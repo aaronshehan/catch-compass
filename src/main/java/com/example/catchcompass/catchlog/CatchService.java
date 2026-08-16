@@ -14,10 +14,14 @@ public class CatchService {
 
     private final CatchRepository catchRepository;
     private final SpeciesRepository speciesRepository;
+    private final CatchPhotoService catchPhotoService;
 
-    public CatchService(CatchRepository catchRepository, SpeciesRepository speciesRepository) {
+    public CatchService(CatchRepository catchRepository,
+                        SpeciesRepository speciesRepository,
+                        CatchPhotoService catchPhotoService) {
         this.catchRepository = catchRepository;
         this.speciesRepository = speciesRepository;
+        this.catchPhotoService = catchPhotoService;
     }
 
     /**
@@ -60,6 +64,14 @@ public class CatchService {
                 form.getLongitude(),
                 form.getLocationAccuracyMeters());
 
-        return catchRepository.save(catchRecord);
+        Catch saved = catchRepository.save(catchRecord);
+
+        // Inside the transaction on purpose: if storing the photo fails, the
+        // catch row is rolled back too, rather than leaving a photoless record.
+        if (form.getPhoto() != null && !form.getPhoto().isEmpty()) {
+            catchPhotoService.attach(saved, form.getPhoto());
+        }
+
+        return saved;
     }
 }

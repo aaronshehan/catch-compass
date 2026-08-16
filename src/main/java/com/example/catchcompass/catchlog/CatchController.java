@@ -7,10 +7,12 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.List;
 
@@ -19,10 +21,14 @@ public class CatchController {
 
     private final CatchService catchService;
     private final SpeciesRepository speciesRepository;
+    private final CatchPhotoRepository catchPhotoRepository;
 
-    public CatchController(CatchService catchService, SpeciesRepository speciesRepository) {
+    public CatchController(CatchService catchService,
+                           SpeciesRepository speciesRepository,
+                           CatchPhotoRepository catchPhotoRepository) {
         this.catchService = catchService;
         this.speciesRepository = speciesRepository;
+        this.catchPhotoRepository = catchPhotoRepository;
     }
 
     /**
@@ -63,13 +69,34 @@ public class CatchController {
             return "catches/new";
         }
 
-        Catch saved = catchService.create(CurrentUser.DEV_USER_ID, catchForm);
-        return "redirect:/catches/" + saved.getId();
+        try {
+            Catch saved = catchService.create(CurrentUser.DEV_USER_ID, catchForm);
+            return "redirect:/catches/" + saved.getId();
+        } catch (PhotoUploadException e) {
+            // Turns a rejected photo into a field error so the rest of the
+            // user's input survives, rather than failing the whole request.
+            bindingResult.rejectValue("photo", "photo.invalid", e.getMessage());
+            return "catches/new";
+        }
     }
 
     @GetMapping("/catches/{id}")
     public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("catchRecord", catchService.findOwned(id, CurrentUser.DEV_USER_ID));
+        model.addAttribute("hasPhoto",
+                catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(id).isPresent());
         return "catches/detail";
+    }
+
+    /**
+     * Fires when the upload exceeds the configured limit. The request is aborted
+     * mid-stream, so unlike other validation errors the user's other fields are
+     * genuinely gone; the best we can do is say why.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String photoTooLarge(Model model) {
+        model.addAttribute("catchForm", new CatchForm());
+        model.addAttribute("uploadTooLarge", true);
+        return "catches/new";
     }
 }
