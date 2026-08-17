@@ -2,6 +2,7 @@ package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.ConditionsForm;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -79,6 +80,20 @@ public class CatchForm {
      */
     @Valid
     private ConditionsForm conditions = new ConditionsForm();
+
+    /**
+     * Latitude and longitude must both be present or both absent, matching the
+     * database constraint.
+     *
+     * <p>Declared here as {@code @AssertTrue} rather than checked in a
+     * controller so every caller inherits it: the Thymeleaf form, the JSON API,
+     * and anything added later. Bean Validation reports it under the property
+     * name "locationPairComplete".
+     */
+    @AssertTrue(message = "Enter both latitude and longitude, or leave both blank")
+    public boolean isLocationPairComplete() {
+        return (latitude == null) == (longitude == null);
+    }
 
     public Long getSpeciesId() { return speciesId; }
     public void setSpeciesId(Long speciesId) { this.speciesId = speciesId; }

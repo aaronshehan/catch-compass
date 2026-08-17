@@ -1,113 +1,115 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::main}, ~{})}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${catchRecord.species.commonName}">Catch</title>
 </head>
 <body>
 
-<p><a th:href="@{/catches}">Back to journal</a></p>
+<main>
+    <div class="actions">
+        <a class="button" th:href="@{/catches}">Back to journal</a>
+    </div>
 
-<h1 th:text="${catchRecord.species.commonName}">Species name</h1>
+    <h1 th:text="${catchRecord.species.commonName}">Species name</h1>
 
-<img th:if="${hasPhoto}"
-     th:src="@{/catches/{id}/photo(id=${catchRecord.id})}"
-     alt="Photo of the catch"
-     style="max-width: 100%; height: auto;">
+    <img class="photo" th:if="${hasPhoto}"
+         th:src="@{/catches/{id}/photo(id=${catchRecord.id})}"
+         alt="Photo of the catch">
 
-<dl>
-    <dt>Caught at</dt>
-    <dd th:text="${catchRecord.caughtAt}">time</dd>
+    <dl class="facts">
+        <dt>Caught at</dt>
+        <dd th:text="${@formats.dateTime(catchRecord.caughtAt)}">time</dd>
 
-    <dt>Weight</dt>
-    <dd th:text="${catchRecord.weightKg != null ? catchRecord.weightKg + ' kg' : 'Not recorded'}">weight</dd>
+        <dt>Weight</dt>
+        <dd th:text="${catchRecord.weightKg != null ? catchRecord.weightKg + ' kg' : 'Not recorded'}">weight</dd>
 
-    <dt>Length</dt>
-    <dd th:text="${catchRecord.lengthCm != null ? catchRecord.lengthCm + ' cm' : 'Not recorded'}">length</dd>
+        <dt>Length</dt>
+        <dd th:text="${catchRecord.lengthCm != null ? catchRecord.lengthCm + ' cm' : 'Not recorded'}">length</dd>
 
-    <dt>Circumference</dt>
-    <dd th:text="${catchRecord.circumferenceCm != null ? catchRecord.circumferenceCm + ' cm' : 'Not recorded'}">girth</dd>
+        <dt>Circumference</dt>
+        <dd th:text="${catchRecord.circumferenceCm != null ? catchRecord.circumferenceCm + ' cm' : 'Not recorded'}">girth</dd>
 
-    <dt>Location</dt>
-    <dd th:if="${catchRecord.latitude != null}">
-        <span th:text="${catchRecord.latitude} + ', ' + ${catchRecord.longitude}">coordinates</span>
-        <span th:if="${catchRecord.locationAccuracyMeters != null}"
-              th:text="'(accurate to about ' + ${catchRecord.locationAccuracyMeters} + ' m)'"></span>
-    </dd>
-    <dd th:if="${catchRecord.latitude == null}">Not recorded</dd>
+        <dt>Location</dt>
+        <dd th:if="${catchRecord.latitude != null}">
+            <span th:text="${catchRecord.latitude} + ', ' + ${catchRecord.longitude}">coordinates</span>
+            <span class="muted" th:if="${catchRecord.locationAccuracyMeters != null}"
+                  th:text="'(+/- ' + ${catchRecord.locationAccuracyMeters} + ' m)'"></span>
+        </dd>
+        <dd th:if="${catchRecord.latitude == null}">Not recorded</dd>
 
-    <dt>Location read at</dt>
-    <dd th:text="${catchRecord.locationRecordedAt != null ? catchRecord.locationRecordedAt : 'Not recorded'}">time</dd>
+        <dt>Location read at</dt>
+        <dd th:text="${@formats.dateTime(catchRecord.locationRecordedAt)}">time</dd>
 
-    <dt>Notes</dt>
-    <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>
-</dl>
+        <dt>Notes</dt>
+        <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>
+    </dl>
 
-<h2>Lure</h2>
+    <h2>Lure</h2>
 
-<p th:if="${lureSnapshot == null}">No lure recorded.</p>
+    <p class="empty" th:if="${lureSnapshot == null}">No lure recorded.</p>
 
-<dl th:if="${lureSnapshot != null}">
-    <dt>Lure</dt>
-    <dd th:text="${lureSnapshot.displayName}">name</dd>
+    <dl class="facts" th:if="${lureSnapshot != null}">
+        <dt>Lure</dt>
+        <dd th:text="${lureSnapshot.displayName}">name</dd>
 
-    <dt>Type</dt>
-    <dd th:text="${lureSnapshot.lureType}">type</dd>
+        <dt>Type</dt>
+        <dd th:text="${lureSnapshot.lureType}">type</dd>
 
-    <dt>Size</dt>
-    <dd th:text="${lureSnapshot.size != null ? lureSnapshot.size : 'Not recorded'}">size</dd>
+        <dt>Size</dt>
+        <dd th:text="${lureSnapshot.size != null ? lureSnapshot.size : 'Not recorded'}">size</dd>
 
-    <dt>Weight</dt>
-    <dd th:text="${lureSnapshot.weightGrams != null ? lureSnapshot.weightGrams + ' g' : 'Not recorded'}">weight</dd>
+        <dt>Weight</dt>
+        <dd th:text="${lureSnapshot.weightGrams != null ? lureSnapshot.weightGrams + ' g' : 'Not recorded'}">weight</dd>
 
-    <dt>Presentation</dt>
-    <dd th:text="${lureSnapshot.presentation != null ? lureSnapshot.presentation : 'Not recorded'}">presentation</dd>
+        <dt>Presentation</dt>
+        <dd th:text="${lureSnapshot.presentation != null ? lureSnapshot.presentation : 'Not recorded'}">presentation</dd>
 
-    <dt>Still in tackle box</dt>
-    <dd th:text="${lureSnapshot.lureId != null ? 'Yes' : 'No longer in your tackle box'}">status</dd>
-</dl>
+        <dt>Tackle box</dt>
+        <dd th:text="${lureSnapshot.lureId != null ? 'Still listed' : 'No longer in your tackle box'}">status</dd>
+    </dl>
 
-<h2>Conditions</h2>
+    <h2>Conditions</h2>
 
-<p th:if="${conditions == null}">No conditions recorded.</p>
+    <p class="empty" th:if="${conditions == null}">No conditions recorded.</p>
 
-<dl th:if="${conditions != null}">
-    <dt>Air temperature</dt>
-    <dd th:text="${conditions.airTemperatureC != null ? conditions.airTemperatureC + ' C' : 'Not recorded'}">air</dd>
+    <dl class="facts" th:if="${conditions != null}">
+        <dt>Air temperature</dt>
+        <dd th:text="${conditions.airTemperatureC != null ? conditions.airTemperatureC + ' C' : 'Not recorded'}">air</dd>
 
-    <dt>Water temperature</dt>
-    <dd th:text="${conditions.waterTemperatureC != null ? conditions.waterTemperatureC + ' C' : 'Not recorded'}">water</dd>
+        <dt>Water temperature</dt>
+        <dd th:text="${conditions.waterTemperatureC != null ? conditions.waterTemperatureC + ' C' : 'Not recorded'}">water</dd>
 
-    <dt>Wind</dt>
-    <dd th:if="${conditions.windSpeedMetersPerSecond != null or conditions.windDirectionDegrees != null}">
-        <span th:if="${conditions.windSpeedMetersPerSecond != null}"
-              th:text="${conditions.windSpeedMetersPerSecond} + ' m/s'">speed</span>
-        <span th:if="${conditions.windDirectionDegrees != null}"
-              th:text="'from ' + ${conditions.windDirectionLabel} + ' (' + ${conditions.windDirectionDegrees} + ')'">direction</span>
-    </dd>
-    <dd th:if="${conditions.windSpeedMetersPerSecond == null and conditions.windDirectionDegrees == null}">Not recorded</dd>
+        <dt>Wind</dt>
+        <dd th:if="${conditions.windSpeedMetersPerSecond != null or conditions.windDirectionDegrees != null}">
+            <span th:if="${conditions.windSpeedMetersPerSecond != null}"
+                  th:text="${conditions.windSpeedMetersPerSecond} + ' m/s'">speed</span>
+            <span th:if="${conditions.windDirectionDegrees != null}"
+                  th:text="'from ' + ${conditions.windDirectionLabel}">direction</span>
+        </dd>
+        <dd th:if="${conditions.windSpeedMetersPerSecond == null and conditions.windDirectionDegrees == null}">Not recorded</dd>
 
-    <dt>Sky</dt>
-    <dd th:text="${conditions.skyCondition != null ? conditions.skyCondition : 'Not recorded'}">sky</dd>
+        <dt>Sky</dt>
+        <dd th:text="${conditions.skyCondition != null ? conditions.skyCondition : 'Not recorded'}">sky</dd>
 
-    <dt>Pressure</dt>
-    <dd th:text="${conditions.barometricPressureHpa != null ? conditions.barometricPressureHpa + ' hPa' : 'Not recorded'}">pressure</dd>
+        <dt>Pressure</dt>
+        <dd th:text="${conditions.barometricPressureHpa != null ? conditions.barometricPressureHpa + ' hPa' : 'Not recorded'}">pressure</dd>
 
-    <dt>Tide</dt>
-    <dd th:if="${conditions.tideState != null or conditions.tideHeightMeters != null}">
-        <span th:if="${conditions.tideState != null}" th:text="${conditions.tideState}">state</span>
-        <span th:if="${conditions.tideHeightMeters != null}"
-              th:text="'at ' + ${conditions.tideHeightMeters} + ' m'">height</span>
-    </dd>
-    <dd th:if="${conditions.tideState == null and conditions.tideHeightMeters == null}">Not recorded</dd>
+        <dt>Tide</dt>
+        <dd th:if="${conditions.tideState != null or conditions.tideHeightMeters != null}">
+            <span th:if="${conditions.tideState != null}" th:text="${conditions.tideState}">state</span>
+            <span th:if="${conditions.tideHeightMeters != null}"
+                  th:text="'at ' + ${conditions.tideHeightMeters} + ' m'">height</span>
+        </dd>
+        <dd th:if="${conditions.tideState == null and conditions.tideHeightMeters == null}">Not recorded</dd>
 
-    <dt>Observed at</dt>
-    <dd th:text="${conditions.observedAt != null ? conditions.observedAt : 'Not recorded'}">observed</dd>
+        <dt>Observed at</dt>
+        <dd th:text="${@formats.dateTime(conditions.observedAt)}">observed</dd>
 
-    <dt>Source</dt>
-    <dd th:text="${conditions.conditionsSource}">source</dd>
-</dl>
+        <dt>Source</dt>
+        <dd th:text="${conditions.conditionsSource}">source</dd>
+    </dl>
+</main>
 
 </body>
 </html>

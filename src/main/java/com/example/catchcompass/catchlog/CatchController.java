@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.List;
+import java.util.Set;
 
 @Controller
 public class CatchController {
@@ -72,8 +73,18 @@ public class CatchController {
 
     @GetMapping("/catches")
     public String list(Model model) {
-        model.addAttribute("catches", catchService.findJournal(CurrentUser.DEV_USER_ID));
+        List<Catch> catches = catchService.findJournal(CurrentUser.DEV_USER_ID);
+        model.addAttribute("catches", catches);
+        model.addAttribute("catchIdsWithPhotos", photoIdsFor(catches));
         return "catches/list";
+    }
+
+    private Set<Long> photoIdsFor(List<Catch> catches) {
+        if (catches.isEmpty()) {
+            return Set.of();
+        }
+        List<Long> ids = catches.stream().map(Catch::getId).toList();
+        return Set.copyOf(catchPhotoRepository.findCatchIdsWithPhotos(ids));
     }
 
     @GetMapping("/catches/new")
@@ -85,15 +96,6 @@ public class CatchController {
     @PostMapping("/catches")
     public String create(@Valid @ModelAttribute("catchForm") CatchForm catchForm,
                          BindingResult bindingResult) {
-
-        // Some rules span two fields and do not fit a single-field annotation.
-        // This mirrors the database constraint requiring both or neither.
-        boolean hasLatitude = catchForm.getLatitude() != null;
-        boolean hasLongitude = catchForm.getLongitude() != null;
-        if (hasLatitude != hasLongitude) {
-            bindingResult.rejectValue("longitude", "location.incomplete",
-                    "Enter both latitude and longitude, or leave both blank");
-        }
 
         if (bindingResult.hasErrors()) {
             return "catches/new";

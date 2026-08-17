@@ -84,6 +84,9 @@
 
         <p data-location-status role="status" aria-live="polite"></p>
 
+        <span th:if="${#fields.hasErrors('locationPairComplete')}"
+              th:errors="*{locationPairComplete}">error</span>
+
         <input type="hidden" id="locationRecordedAt" th:field="*{locationRecordedAt}">
 
         <p>

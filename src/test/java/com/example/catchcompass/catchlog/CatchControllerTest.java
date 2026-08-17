@@ -98,7 +98,7 @@ class CatchControllerTest {
                         .param("caughtAt", anHourAgo())
                         .param("latitude", "44.5"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeHasFieldErrors("catchForm", "longitude"));
+                .andExpect(model().attributeHasFieldErrors("catchForm", "locationPairComplete"));
     }
 
     @Test

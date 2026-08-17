@@ -1,32 +1,49 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(~{::title}, ~{::main}, ~{})}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Catch journal</title>
 </head>
 <body>
 
-<h1>Catch journal</h1>
+<main>
+    <h1>Catch journal</h1>
 
-<p>
-    <a th:href="@{/catches/new}">Log a catch</a>
-    <a th:href="@{/lures}">Tackle box</a>
-</p>
+    <div class="actions">
+        <a class="button button--primary" th:href="@{/catches/new}">Log a catch</a>
+        <a class="button" th:href="@{/lures}">Tackle box</a>
+    </div>
 
-<p th:if="${catches.isEmpty()}">
-    No catches logged yet.
-</p>
+    <p class="empty" th:if="${catches.isEmpty()}">
+        No catches logged yet.
+    </p>
 
-<ul th:unless="${catches.isEmpty()}">
-    <li th:each="entry : ${catches}">
-        <a th:href="@{/catches/{id}(id=${entry.id})}"
-           th:text="${entry.species.commonName}">Species name</a>
-        <span th:text="${entry.caughtAt}">caught at</span>
-        <span th:if="${entry.weightKg != null}"
-              th:text="'- ' + ${entry.weightKg} + ' kg'"></span>
-    </li>
-</ul>
+    <ul class="catch-list" th:unless="${catches.isEmpty()}">
+        <li th:each="entry : ${catches}">
+            <a class="catch-card" th:href="@{/catches/{id}(id=${entry.id})}">
+
+                <img class="catch-card__thumb"
+                     th:if="${catchIdsWithPhotos.contains(entry.id)}"
+                     th:src="@{/catches/{id}/photo(id=${entry.id})}"
+                     alt="">
+                <span class="catch-card__thumb catch-card__thumb--empty"
+                      th:unless="${catchIdsWithPhotos.contains(entry.id)}"
+                      aria-hidden="true">&#9679;</span>
+
+                <span class="catch-card__body">
+                    <span class="catch-card__title" th:text="${entry.species.commonName}">Species</span>
+                    <span class="catch-card__meta">
+                        <span th:text="${@formats.dateTime(entry.caughtAt)}">date</span>
+                        <span th:if="${entry.weightKg != null}"
+                              th:text="' - ' + ${entry.weightKg} + ' kg'"></span>
+                        <span th:if="${entry.lengthCm != null}"
+                              th:text="' - ' + ${entry.lengthCm} + ' cm'"></span>
+                    </span>
+                </span>
+            </a>
+        </li>
+    </ul>
+</main>
 
 </body>
 </html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<!--
+  The shared page shell. Every template passes its own title, main content and
+  scripts into this fragment, so the head, navigation and stylesheet link exist
+  in exactly one place.
+-->
+<html th:fragment="page(pageTitle, content, scripts)" lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:replace="${pageTitle}">CatchCompass</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="app-header">
+    <a class="brand" th:href="@{/catches}">CatchCompass</a>
+    <nav>
+        <a th:href="@{/catches}">Journal</a>
+        <a th:href="@{/lures}">Tackle</a>
+    </nav>
+</header>
+
+<div th:replace="${content}">Page content goes here</div>
+
+<th:block th:replace="${scripts}"></th:block>
+
+</body>
+</html>
