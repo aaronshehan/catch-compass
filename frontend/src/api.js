@@ -65,6 +65,8 @@ export const api = {
   lureOptions: () => request('/api/lures/options'),
   createLure: (lure) => json('/api/lures', 'POST', lure),
 
+  conditionsOptions: () => request('/api/conditions/options'),
+
   conditions: (latitude, longitude, at) =>
     request(
       `/api/conditions?latitude=${encodeURIComponent(latitude)}` +

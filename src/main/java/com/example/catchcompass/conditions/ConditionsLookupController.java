@@ -58,6 +58,21 @@ public class ConditionsLookupController {
                 weather != null));
     }
 
+    /**
+     * Enum values for the frontend's dropdowns. Served from here so the options
+     * cannot drift out of sync with the CHECK constraints in the migrations.
+     */
+    @GetMapping("/api/conditions/options")
+    public ConditionsOptions options() {
+        return new ConditionsOptions(
+                java.util.Arrays.stream(TideState.values()).map(Enum::name).toList(),
+                java.util.Arrays.stream(SkyCondition.values()).map(Enum::name).toList());
+    }
+
+    public record ConditionsOptions(java.util.List<String> tideStates,
+                                    java.util.List<String> skyConditions) {
+    }
+
     public record LookupResult(
             BigDecimal airTemperatureC,
             BigDecimal windSpeedMetersPerSecond,
