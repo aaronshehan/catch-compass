@@ -44,6 +44,30 @@
     <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>
 </dl>
 
+<h2>Lure</h2>
+
+<p th:if="${lureSnapshot == null}">No lure recorded.</p>
+
+<dl th:if="${lureSnapshot != null}">
+    <dt>Lure</dt>
+    <dd th:text="${lureSnapshot.displayName}">name</dd>
+
+    <dt>Type</dt>
+    <dd th:text="${lureSnapshot.lureType}">type</dd>
+
+    <dt>Size</dt>
+    <dd th:text="${lureSnapshot.size != null ? lureSnapshot.size : 'Not recorded'}">size</dd>
+
+    <dt>Weight</dt>
+    <dd th:text="${lureSnapshot.weightGrams != null ? lureSnapshot.weightGrams + ' g' : 'Not recorded'}">weight</dd>
+
+    <dt>Presentation</dt>
+    <dd th:text="${lureSnapshot.presentation != null ? lureSnapshot.presentation : 'Not recorded'}">presentation</dd>
+
+    <dt>Still in tackle box</dt>
+    <dd th:text="${lureSnapshot.lureId != null ? 'Yes' : 'No longer in your tackle box'}">status</dd>
+</dl>
+
 <h2>Conditions</h2>
 
 <p th:if="${conditions == null}">No conditions recorded.</p>

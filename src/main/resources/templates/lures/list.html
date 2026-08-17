@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tackle box</title>
+</head>
+<body>
+
+<p><a th:href="@{/catches}">Catch journal</a></p>
+
+<h1>Tackle box</h1>
+
+<p><a th:href="@{/lures/new}">Add a lure</a></p>
+
+<p th:if="${lures.isEmpty()}">
+    No lures yet. Add one and it will be selectable when you log a catch.
+</p>
+
+<table th:unless="${lures.isEmpty()}">
+    <thead>
+    <tr>
+        <th>Lure</th>
+        <th>Type</th>
+        <th>Size</th>
+        <th>Weight</th>
+        <th>Presentation</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="lure : ${lures}">
+        <td th:text="${lure.displayName}">name</td>
+        <td th:text="${lure.lureType}">type</td>
+        <td th:text="${lure.size != null ? lure.size : '-'}">size</td>
+        <td th:text="${lure.weightGrams != null ? lure.weightGrams + ' g' : '-'}">weight</td>
+        <td th:text="${lure.presentation != null ? lure.presentation : '-'}">presentation</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

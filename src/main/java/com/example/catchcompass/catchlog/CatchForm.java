@@ -70,6 +70,9 @@ public class CatchForm {
      */
     private MultipartFile photo;
 
+    /** Optional: not every catch comes on a lure from the tackle box. */
+    private Long lureId;
+
     /**
      * Nested so the conditions fields validate as part of this form. Never null,
      * so Thymeleaf can bind to it on a blank form.
@@ -113,6 +116,9 @@ public class CatchForm {
 
     public MultipartFile getPhoto() { return photo; }
     public void setPhoto(MultipartFile photo) { this.photo = photo; }
+
+    public Long getLureId() { return lureId; }
+    public void setLureId(Long lureId) { this.lureId = lureId; }
 
     public ConditionsForm getConditions() { return conditions; }
     public void setConditions(ConditionsForm conditions) { this.conditions = conditions; }

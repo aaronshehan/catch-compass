@@ -3,6 +3,9 @@ package com.example.catchcompass.catchlog;
 import com.example.catchcompass.conditions.CatchConditionsRepository;
 import com.example.catchcompass.conditions.SkyCondition;
 import com.example.catchcompass.conditions.TideState;
+import com.example.catchcompass.lure.CatchLureSnapshotRepository;
+import com.example.catchcompass.lure.Lure;
+import com.example.catchcompass.lure.LureService;
 import com.example.catchcompass.shared.CurrentUser;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
@@ -26,15 +29,26 @@ public class CatchController {
     private final SpeciesRepository speciesRepository;
     private final CatchPhotoRepository catchPhotoRepository;
     private final CatchConditionsRepository catchConditionsRepository;
+    private final LureService lureService;
+    private final CatchLureSnapshotRepository catchLureSnapshotRepository;
 
     public CatchController(CatchService catchService,
                            SpeciesRepository speciesRepository,
                            CatchPhotoRepository catchPhotoRepository,
-                           CatchConditionsRepository catchConditionsRepository) {
+                           CatchConditionsRepository catchConditionsRepository,
+                           LureService lureService,
+                           CatchLureSnapshotRepository catchLureSnapshotRepository) {
         this.catchService = catchService;
         this.speciesRepository = speciesRepository;
         this.catchPhotoRepository = catchPhotoRepository;
         this.catchConditionsRepository = catchConditionsRepository;
+        this.lureService = lureService;
+        this.catchLureSnapshotRepository = catchLureSnapshotRepository;
+    }
+
+    @ModelAttribute("lureOptions")
+    public List<Lure> lureOptions() {
+        return lureService.findTackleBox(CurrentUser.DEV_USER_ID);
     }
 
     @ModelAttribute("tideStates")
@@ -103,6 +117,8 @@ public class CatchController {
                 catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(id).isPresent());
         model.addAttribute("conditions",
                 catchConditionsRepository.findById(id).orElse(null));
+        model.addAttribute("lureSnapshot",
+                catchLureSnapshotRepository.findById(id).orElse(null));
         return "catches/detail";
     }
 

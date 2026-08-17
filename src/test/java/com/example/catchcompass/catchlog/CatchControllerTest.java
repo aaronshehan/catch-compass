@@ -1,6 +1,8 @@
 package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.CatchConditionsRepository;
+import com.example.catchcompass.lure.CatchLureSnapshotRepository;
+import com.example.catchcompass.lure.LureService;
 import com.example.catchcompass.species.SpeciesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,12 @@ class CatchControllerTest {
 
     @MockitoBean
     private CatchConditionsRepository catchConditionsRepository;
+
+    @MockitoBean
+    private LureService lureService;
+
+    @MockitoBean
+    private CatchLureSnapshotRepository catchLureSnapshotRepository;
 
     private static String anHourAgo() {
         return LocalDateTime.now().minusHours(1).toString();

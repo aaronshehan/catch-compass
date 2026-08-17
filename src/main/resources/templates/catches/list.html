@@ -9,7 +9,10 @@
 
 <h1>Catch journal</h1>
 
-<p><a th:href="@{/catches/new}">Log a catch</a></p>
+<p>
+    <a th:href="@{/catches/new}">Log a catch</a>
+    <a th:href="@{/lures}">Tackle box</a>
+</p>
 
 <p th:if="${catches.isEmpty()}">
     No catches logged yet.
