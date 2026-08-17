@@ -1,0 +1,380 @@
+/*
+ * CatchCompass - mobile first.
+ *
+ * Written for the actual context: one hand, wet fingers, bright sunlight,
+ * standing in a moving boat. Big targets, high contrast, one column.
+ */
+
+:root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --border: #d8dcd6;
+    --text: #1c2119;
+    --text-muted: #5c6659;
+    --accent: #2f6b4f;
+    --accent-text: #ffffff;
+    --danger: #a32c2c;
+    --radius: 10px;
+    --gap: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #12150f;
+        --surface: #1c211a;
+        --border: #333a30;
+        --text: #e8ebe5;
+        --text-muted: #a3ada0;
+        --accent: #6bbd8e;
+        --accent-text: #0d1410;
+        --danger: #e78585;
+    }
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* ---------- header ---------- */
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap);
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.app-header nav {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.app-header nav a {
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.app-header nav a:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ---------- layout ---------- */
+
+main {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 4rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.muted {
+    color: var(--text-muted);
+}
+
+.empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+}
+
+/* ---------- buttons ---------- */
+
+.button,
+button {
+    display: inline-block;
+    min-height: 44px;           /* comfortable target for a thumb */
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+.button:hover,
+button:hover {
+    border-color: var(--accent);
+}
+
+.button--primary,
+button[type="submit"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---------- catch list ---------- */
+
+.catch-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.catch-card {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: inherit;
+}
+
+.catch-card:hover {
+    border-color: var(--accent);
+}
+
+.catch-card__thumb {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--bg);
+}
+
+.catch-card__thumb--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+.catch-card__body {
+    min-width: 0;
+}
+
+.catch-card__title {
+    font-weight: 600;
+    display: block;
+}
+
+.catch-card__meta {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* ---------- detail ---------- */
+
+.photo {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+}
+
+.facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(8rem, 40%) 1fr;
+    gap: 0.5rem 1rem;
+}
+
+.facts dt {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.facts dd {
+    margin: 0;
+}
+
+/* ---------- forms ---------- */
+
+fieldset {
+    margin: 0 0 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+}
+
+legend {
+    padding: 0 0.4rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.field {
+    margin-bottom: 1rem;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+
+    /* 16px minimum. Below this, iOS Safari zooms the page on focus and the
+       user has to pinch back out after every field. */
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+textarea {
+    min-height: 6rem;
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.error {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--danger);
+    font-size: 0.875rem;
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.notice {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.notice:empty {
+    display: none;             /* status lines stay invisible until they speak */
+}
+
+.notice--error {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+/* ---------- table ---------- */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+th, td {
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+th {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- desktop ---------- */
+
+@media (min-width: 40rem) {
+    main {
+        padding: 2rem 1rem 4rem;
+    }
+
+    h1 {
+        font-size: 1.9rem;
+    }
+}

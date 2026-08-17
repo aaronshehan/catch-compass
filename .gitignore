@@ -34,3 +34,7 @@ build/
 
 ### CatchCompass ###
 /storage/
+
+### Frontend ###
+/frontend/node_modules/
+/frontend/dist/
