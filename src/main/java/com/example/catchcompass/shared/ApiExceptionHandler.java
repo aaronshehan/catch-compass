@@ -1,5 +1,6 @@
 package com.example.catchcompass.shared;
 
+import com.example.catchcompass.catchlog.PhotoUploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,6 +42,19 @@ public class ApiExceptionHandler {
         problem.setTitle("Validation failed");
         problem.setDetail("Some fields need correcting");
         problem.setProperty("errors", errors);
+        return problem;
+    }
+
+    /**
+     * A rejected photo is a validation failure, not a server fault, so it gets
+     * the same shape as any other field error rather than a 500.
+     */
+    @ExceptionHandler(PhotoUploadException.class)
+    public ProblemDetail onPhotoRejected(PhotoUploadException exception) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Photo rejected");
+        problem.setDetail(exception.getMessage());
+        problem.setProperty("errors", Map.of("photo", exception.getMessage()));
         return problem;
     }
 
