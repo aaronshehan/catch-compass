@@ -71,8 +71,11 @@ public class CatchForm {
      */
     private MultipartFile photo;
 
-    /** Optional: not every catch comes on a lure from the tackle box. */
-    private Long lureId;
+    /** Optional: not every catch comes on a lure. */
+    private LureType lureType;
+
+    @Size(max = 200, message = "Lure description must be 200 characters or fewer")
+    private String lureDescription;
 
     /**
      * Nested so the conditions fields validate as part of this form. Never null,
@@ -93,6 +96,15 @@ public class CatchForm {
     @AssertTrue(message = "Enter both latitude and longitude, or leave both blank")
     public boolean isLocationPairComplete() {
         return (latitude == null) == (longitude == null);
+    }
+
+    /**
+     * A lure description means nothing without a type, and the database says so
+     * too. Rejecting it beats silently discarding what someone typed.
+     */
+    @AssertTrue(message = "Choose a lure type to go with that description")
+    public boolean isLureDescriptionAccompaniedByType() {
+        return lureDescription == null || lureDescription.isBlank() || lureType != null;
     }
 
     public Long getSpeciesId() { return speciesId; }
@@ -132,8 +144,11 @@ public class CatchForm {
     public MultipartFile getPhoto() { return photo; }
     public void setPhoto(MultipartFile photo) { this.photo = photo; }
 
-    public Long getLureId() { return lureId; }
-    public void setLureId(Long lureId) { this.lureId = lureId; }
+    public LureType getLureType() { return lureType; }
+    public void setLureType(LureType lureType) { this.lureType = lureType; }
+
+    public String getLureDescription() { return lureDescription; }
+    public void setLureDescription(String lureDescription) { this.lureDescription = lureDescription; }
 
     public ConditionsForm getConditions() { return conditions; }
     public void setConditions(ConditionsForm conditions) { this.conditions = conditions; }

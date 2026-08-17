@@ -1,7 +1,6 @@
 package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.CatchConditionsRepository;
-import com.example.catchcompass.lure.CatchLureSnapshotRepository;
 import com.example.catchcompass.user.CatchCompassUser;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.example.catchcompass.storage.PhotoStorage;
@@ -22,18 +21,15 @@ public class CatchApiController {
     private final CatchService catchService;
     private final CatchPhotoRepository catchPhotoRepository;
     private final CatchConditionsRepository catchConditionsRepository;
-    private final CatchLureSnapshotRepository catchLureSnapshotRepository;
     private final PhotoStorage photoStorage;
 
     public CatchApiController(CatchService catchService,
                               CatchPhotoRepository catchPhotoRepository,
                               CatchConditionsRepository catchConditionsRepository,
-                              CatchLureSnapshotRepository catchLureSnapshotRepository,
                               PhotoStorage photoStorage) {
         this.catchService = catchService;
         this.catchPhotoRepository = catchPhotoRepository;
         this.catchConditionsRepository = catchConditionsRepository;
-        this.catchLureSnapshotRepository = catchLureSnapshotRepository;
         this.photoStorage = photoStorage;
     }
 
@@ -55,7 +51,6 @@ public class CatchApiController {
         return CatchResponse.Detail.from(
                 catchRecord,
                 catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(id).isPresent(),
-                catchLureSnapshotRepository.findById(id).orElse(null),
                 catchConditionsRepository.findById(id).orElse(null));
     }
 

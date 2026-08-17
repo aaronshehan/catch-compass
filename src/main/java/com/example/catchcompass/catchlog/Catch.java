@@ -51,6 +51,14 @@ public class Catch {
     @Column(columnDefinition = "text")
     private String notes;
 
+    /** What it was caught on. Optional: not every fish comes on a lure. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 40)
+    private LureType lureType;
+
+    @Column(length = 200)
+    private String lureDescription;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -112,6 +120,8 @@ public class Catch {
     public BigDecimal getLengthCm() { return lengthCm; }
     public BigDecimal getCircumferenceCm() { return circumferenceCm; }
     public String getNotes() { return notes; }
+    public LureType getLureType() { return lureType; }
+    public String getLureDescription() { return lureDescription; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 
@@ -121,4 +131,13 @@ public class Catch {
     public void setLengthCm(BigDecimal lengthCm) { this.lengthCm = lengthCm; }
     public void setCircumferenceCm(BigDecimal circumferenceCm) { this.circumferenceCm = circumferenceCm; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    /**
+     * Set together: a description without a type is meaningless, which the
+     * database also enforces.
+     */
+    public void setLure(LureType lureType, String lureDescription) {
+        this.lureType = lureType;
+        this.lureDescription = lureType == null ? null : lureDescription;
+    }
 }

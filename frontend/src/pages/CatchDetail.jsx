@@ -89,17 +89,9 @@ export default function CatchDetail() {
           <span className="section-label">Lure</span>
           {entry.lure ? (
             <Facts>
-              <Fact label="Lure">{entry.lure.displayName}</Fact>
               <Fact label="Type">{humanise(entry.lure.type)}</Fact>
-              <Fact label="Size">{orNotRecorded(entry.lure.size)}</Fact>
-              <Fact label="Weight">{measurement(entry.lure.weightGrams, 'g')}</Fact>
-              <Fact label="Worked as">
-                {humanise(entry.lure.presentation) ?? 'Not recorded'}
-              </Fact>
-              {!entry.lure.stillInTackleBox && (
-                <Fact label="Note">
-                  <span className="muted">No longer in your tackle box</span>
-                </Fact>
+              {entry.lure.description && (
+                <Fact label="Details">{entry.lure.description}</Fact>
               )}
             </Facts>
           ) : (

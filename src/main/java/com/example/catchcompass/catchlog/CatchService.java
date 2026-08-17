@@ -4,10 +4,6 @@ import com.example.catchcompass.conditions.CatchConditions;
 import com.example.catchcompass.conditions.CatchConditionsRepository;
 import com.example.catchcompass.conditions.ConditionsForm;
 import com.example.catchcompass.conditions.ConditionsSource;
-import com.example.catchcompass.lure.CatchLureSnapshot;
-import com.example.catchcompass.lure.CatchLureSnapshotRepository;
-import com.example.catchcompass.lure.Lure;
-import com.example.catchcompass.lure.LureService;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
 import org.springframework.stereotype.Service;
@@ -24,21 +20,15 @@ public class CatchService {
     private final SpeciesRepository speciesRepository;
     private final CatchPhotoService catchPhotoService;
     private final CatchConditionsRepository catchConditionsRepository;
-    private final LureService lureService;
-    private final CatchLureSnapshotRepository catchLureSnapshotRepository;
 
     public CatchService(CatchRepository catchRepository,
                         SpeciesRepository speciesRepository,
                         CatchPhotoService catchPhotoService,
-                        CatchConditionsRepository catchConditionsRepository,
-                        LureService lureService,
-                        CatchLureSnapshotRepository catchLureSnapshotRepository) {
+                        CatchConditionsRepository catchConditionsRepository) {
         this.catchRepository = catchRepository;
         this.speciesRepository = speciesRepository;
         this.catchPhotoService = catchPhotoService;
         this.catchConditionsRepository = catchConditionsRepository;
-        this.lureService = lureService;
-        this.catchLureSnapshotRepository = catchLureSnapshotRepository;
     }
 
     /**
@@ -76,6 +66,7 @@ public class CatchService {
         catchRecord.setLengthCm(form.getLengthCm());
         catchRecord.setCircumferenceCm(form.getCircumferenceCm());
         catchRecord.setNotes(form.getNotes());
+        catchRecord.setLure(form.getLureType(), form.getLureDescription());
         if (form.getLatitude() != null) {
             catchRecord.setLocation(
                     form.getLatitude(),
@@ -97,24 +88,10 @@ public class CatchService {
         }
 
         saveConditionsIfAnyWereEntered(saved, form.getConditions());
-        saveLureSnapshotIfSelected(userId, saved, form.getLureId());
 
         return saved;
     }
 
-    /**
-     * Freezes a copy of the lure onto the catch rather than referencing it.
-     *
-     * <p>findOwned is deliberate: without the user check, submitting someone
-     * else's lure id would attach their tackle to your catch.
-     */
-    private void saveLureSnapshotIfSelected(Long userId, Catch catchRecord, Long lureId) {
-        if (lureId == null) {
-            return;
-        }
-        Lure lure = lureService.findOwned(lureId, userId);
-        catchLureSnapshotRepository.save(CatchLureSnapshot.copyOf(catchRecord, lure));
-    }
 
     /**
      * A row of all-nulls is indistinguishable from "not recorded", so no

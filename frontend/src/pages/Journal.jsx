@@ -28,9 +28,6 @@ export default function Journal() {
         <Link className="button button--primary" to="/catches/new">
           Log a catch
         </Link>
-        <Link className="button" to="/lures">
-          Tackle box
-        </Link>
       </div>
 
       {error && <p className="notice notice--error">{error}</p>}

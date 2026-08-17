@@ -9,8 +9,6 @@ import { RequireAuth } from './auth/RequireAuth.jsx';
 import Journal from './pages/Journal.jsx';
 import CatchDetail from './pages/CatchDetail.jsx';
 import NewCatch from './pages/NewCatch.jsx';
-import TackleBox from './pages/TackleBox.jsx';
-import NewLure from './pages/NewLure.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import './styles.css';
@@ -32,8 +30,6 @@ const router = createBrowserRouter([
       // as a catch with the id "new".
       { path: 'catches/new', element: guarded(<NewCatch />) },
       { path: 'catches/:id', element: guarded(<CatchDetail />) },
-      { path: 'lures', element: guarded(<TackleBox />) },
-      { path: 'lures/new', element: guarded(<NewLure />) },
     ],
   },
 ]);

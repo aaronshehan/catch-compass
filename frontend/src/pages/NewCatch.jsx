@@ -9,7 +9,8 @@ import { humanise } from '../format.js';
 const EMPTY_CATCH = {
   speciesId: '',
   caughtAt: '',
-  lureId: '',
+  lureType: '',
+  lureDescription: '',
   weightKg: '',
   lengthCm: '',
   circumferenceCm: '',
@@ -44,8 +45,8 @@ export default function NewCatch() {
   const navigate = useNavigate();
 
   const { data, error: loadError, loading } = useLoad(() =>
-    Promise.all([api.species(), api.lures(), api.conditionsOptions()]).then(
-      ([species, lures, options]) => ({ species, lures, options }),
+    Promise.all([api.species(), api.lureTypes(), api.conditionsOptions()]).then(
+      ([species, lureTypes, options]) => ({ species, lureTypes, options }),
     ),
   );
 
@@ -271,20 +272,37 @@ export default function NewCatch() {
               />
             </Field>
 
-            <Field id="lureId" label="Lure" error={errors.lureId}>
+            <Field id="lureType" label="Lure" error={errors.lureType}>
               <select
-                id="lureId"
-                value={form.lureId}
-                onChange={(e) => update('lureId', e.target.value)}
+                id="lureType"
+                value={form.lureType}
+                onChange={(e) => update('lureType', e.target.value)}
               >
                 <option value="">No lure recorded</option>
-                {data.lures.map((lure) => (
-                  <option key={lure.id} value={lure.id}>
-                    {lure.displayName}
+                {data.lureTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {humanise(type)}
                   </option>
                 ))}
               </select>
             </Field>
+
+            {form.lureType && (
+              <Field
+                id="lureDescription"
+                label="Lure details"
+                error={errors.lureDescription}
+              >
+                <input
+                  id="lureDescription"
+                  type="text"
+                  placeholder="Rapala Shad Rap, firetiger, 3 inch"
+                  value={form.lureDescription}
+                  onChange={(e) => update('lureDescription', e.target.value)}
+                  aria-invalid={errors.lureDescription ? 'true' : undefined}
+                />
+              </Field>
+            )}
           </fieldset>
 
           <Group

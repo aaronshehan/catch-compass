@@ -1,4 +1,4 @@
-package com.example.catchcompass.lure;
+package com.example.catchcompass.catchlog;
 
 public enum LureType {
     CRANKBAIT,

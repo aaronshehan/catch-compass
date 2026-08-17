@@ -89,9 +89,7 @@ export const api = {
   createCatch: (formData) => request('/api/catches', { method: 'POST', body: formData }),
 
   species: () => request('/api/species'),
-  lures: () => request('/api/lures'),
-  lureOptions: () => request('/api/lures/options'),
-  createLure: (lure) => json('/api/lures', 'POST', lure),
+  lureTypes: () => request('/api/lure-types'),
 
   conditionsOptions: () => request('/api/conditions/options'),
 

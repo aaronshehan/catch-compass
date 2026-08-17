@@ -1,7 +1,6 @@
 package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.CatchConditionsRepository;
-import com.example.catchcompass.lure.CatchLureSnapshotRepository;
 import com.example.catchcompass.shared.ApiExceptionHandler;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.storage.PhotoStorage;
@@ -51,8 +50,6 @@ class CatchApiControllerTest {
     @MockitoBean
     private CatchConditionsRepository catchConditionsRepository;
 
-    @MockitoBean
-    private CatchLureSnapshotRepository catchLureSnapshotRepository;
 
     @MockitoBean
     private PhotoStorage photoStorage;
@@ -120,6 +117,16 @@ class CatchApiControllerTest {
                         .param("conditions.waterTemperatureC", "300"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors['conditions.waterTemperatureC']").exists());
+    }
+
+    @Test
+    void lureDescriptionWithoutATypeIsRejected() throws Exception {
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
+                        .param("speciesId", "1")
+                        .param("caughtAt", anHourAgo())
+                        .param("lureDescription", "Rapala Shad Rap, firetiger"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.lureDescriptionAccompaniedByType").exists());
     }
 
     @Test

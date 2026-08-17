@@ -23,9 +23,6 @@ export default function App() {
             <NavLink to="/catches" className={({ isActive }) => (isActive ? 'active' : '')}>
               Journal
             </NavLink>
-            <NavLink to="/lures" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Tackle
-            </NavLink>
             <button type="button" className="button--ghost signout" onClick={signOut}>
               Sign out
             </button>

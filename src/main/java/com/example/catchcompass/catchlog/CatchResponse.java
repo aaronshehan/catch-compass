@@ -1,7 +1,6 @@
 package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.CatchConditions;
-import com.example.catchcompass.lure.CatchLureSnapshot;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -56,7 +55,6 @@ public final class CatchResponse {
 
         public static Detail from(Catch source,
                                   boolean hasPhoto,
-                                  CatchLureSnapshot lure,
                                   CatchConditions conditions) {
             return new Detail(
                     source.getId(),
@@ -73,7 +71,7 @@ public final class CatchResponse {
                     source.getNotes(),
                     hasPhoto,
                     hasPhoto ? "/api/catches/" + source.getId() + "/photo" : null,
-                    LureView.from(lure),
+                    LureView.from(source),
                     ConditionsView.from(conditions),
                     source.getCreatedAt(),
                     source.getUpdatedAt());
@@ -93,27 +91,13 @@ public final class CatchResponse {
     public record Measurements(BigDecimal weightKg, BigDecimal lengthCm, BigDecimal circumferenceCm) {
     }
 
-    public record LureView(
-            Long lureId,
-            String displayName,
-            String type,
-            String size,
-            BigDecimal weightGrams,
-            String presentation,
-            boolean stillInTackleBox) {
+    public record LureView(String type, String description) {
 
-        static LureView from(CatchLureSnapshot snapshot) {
-            if (snapshot == null) {
+        static LureView from(Catch source) {
+            if (source.getLureType() == null) {
                 return null;
             }
-            return new LureView(
-                    snapshot.getLureId(),
-                    snapshot.getDisplayName(),
-                    snapshot.getLureType().name(),
-                    snapshot.getSize(),
-                    snapshot.getWeightGrams(),
-                    snapshot.getPresentation() == null ? null : snapshot.getPresentation().name(),
-                    snapshot.getLureId() != null);
+            return new LureView(source.getLureType().name(), source.getLureDescription());
         }
     }
 
