@@ -14,9 +14,30 @@ export function Field({ id, label, error, children }) {
   );
 }
 
-/** Renders whichever of loading / error / nothing applies, or null when ready. */
-export function LoadState({ loading, error }) {
-  if (error) return <p className="notice notice--error">{error}</p>;
-  if (loading) return <p className="muted">Loading...</p>;
-  return null;
+/**
+ * Shows the shape of what is coming rather than the word "Loading".
+ * On a slow connection this is the difference between a page that feels
+ * broken and one that feels like it is working.
+ */
+export function Skeleton({ count = 3 }) {
+  return (
+    <div className="skeleton" aria-hidden="true">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className="skeleton__card" />
+      ))}
+    </div>
+  );
+}
+
+/** A collapsible section, so optional fields do not make a wall on a phone. */
+export function Group({ title, hint, open = false, children }) {
+  return (
+    <details className="group" open={open}>
+      <summary>
+        <span>{title}</span>
+        {hint && <span className="summary-hint">{hint}</span>}
+      </summary>
+      <div className="group__body">{children}</div>
+    </details>
+  );
 }

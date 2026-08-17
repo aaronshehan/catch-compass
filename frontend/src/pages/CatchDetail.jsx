@@ -2,19 +2,36 @@ import { Link, useParams } from 'react-router-dom';
 
 import { api } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
-import { LoadState } from '../components/Field.jsx';
+import { Skeleton } from '../components/Field.jsx';
 import { dateTime, humanise, measurement, orNotRecorded } from '../format.js';
 
+function Stat({ value, unit, label }) {
+  const missing = value === null || value === undefined;
+  return (
+    <div className="stat">
+      <span className={missing ? 'stat__value stat__value--none' : 'stat__value'}>
+        {missing ? '–' : `${value}`}
+        {!missing && unit && <span className="muted" style={{ fontSize: '0.8rem' }}> {unit}</span>}
+      </span>
+      <span className="stat__label">{label}</span>
+    </div>
+  );
+}
+
 function Facts({ children }) {
-  return <dl className="facts">{children}</dl>;
+  return (
+    <div className="panel">
+      <dl className="facts">{children}</dl>
+    </div>
+  );
 }
 
 function Fact({ label, children }) {
   return (
-    <>
+    <div>
       <dt>{label}</dt>
       <dd>{children}</dd>
-    </>
+    </div>
   );
 }
 
@@ -24,79 +41,77 @@ export default function CatchDetail() {
 
   return (
     <main>
-      <div className="actions">
-        <Link className="button" to="/catches">
-          Back to journal
-        </Link>
-      </div>
+      <Link className="back-link" to="/catches">
+        &#8592; Journal
+      </Link>
 
-      <LoadState loading={loading} error={error} />
+      {error && <p className="notice notice--error">{error}</p>}
+      {loading && <Skeleton count={2} />}
 
       {entry && (
         <>
-          <h1>{entry.species.commonName}</h1>
-
           {entry.hasPhoto && (
-            <img className="photo" src={entry.photoUrl} alt="Photo of the catch" />
+            <img className="hero-photo" src={entry.photoUrl} alt="Photo of the catch" />
           )}
 
+          <h1>{entry.species.commonName}</h1>
+
+          <div className="stat-row">
+            <Stat value={entry.measurements.weightKg} unit="kg" label="Weight" />
+            <Stat value={entry.measurements.lengthCm} unit="cm" label="Length" />
+            <Stat value={entry.measurements.circumferenceCm} unit="cm" label="Girth" />
+          </div>
+
           <Facts>
-            <Fact label="Caught at">{dateTime(entry.caughtAt)}</Fact>
+            <Fact label="Caught">{dateTime(entry.caughtAt)}</Fact>
             <Fact label="Species">
-              {entry.species.commonName}
-              {entry.species.scientificName && (
-                <span className="muted"> ({entry.species.scientificName})</span>
+              {entry.species.scientificName ? (
+                <em className="muted">{entry.species.scientificName}</em>
+              ) : (
+                entry.species.commonName
               )}
-            </Fact>
-            <Fact label="Weight">{measurement(entry.measurements.weightKg, 'kg')}</Fact>
-            <Fact label="Length">{measurement(entry.measurements.lengthCm, 'cm')}</Fact>
-            <Fact label="Circumference">
-              {measurement(entry.measurements.circumferenceCm, 'cm')}
             </Fact>
             <Fact label="Location">
               {entry.location ? (
                 <>
                   {entry.location.latitude}, {entry.location.longitude}
                   {entry.location.accuracyMeters != null && (
-                    <span className="muted"> (+/- {entry.location.accuracyMeters} m)</span>
+                    <span className="muted"> &plusmn;{entry.location.accuracyMeters} m</span>
                   )}
                 </>
               ) : (
-                'Not recorded'
+                <span className="muted">Not recorded</span>
               )}
             </Fact>
-            <Fact label="Location read at">
-              {dateTime(entry.location?.recordedAt)}
-            </Fact>
-            <Fact label="Notes">{orNotRecorded(entry.notes)}</Fact>
+            {entry.notes && <Fact label="Notes">{entry.notes}</Fact>}
           </Facts>
 
-          <h2>Lure</h2>
+          <span className="section-label">Lure</span>
           {entry.lure ? (
             <Facts>
               <Fact label="Lure">{entry.lure.displayName}</Fact>
               <Fact label="Type">{humanise(entry.lure.type)}</Fact>
               <Fact label="Size">{orNotRecorded(entry.lure.size)}</Fact>
               <Fact label="Weight">{measurement(entry.lure.weightGrams, 'g')}</Fact>
-              <Fact label="Presentation">
+              <Fact label="Worked as">
                 {humanise(entry.lure.presentation) ?? 'Not recorded'}
               </Fact>
-              <Fact label="Tackle box">
-                {entry.lure.stillInTackleBox ? 'Still listed' : 'No longer in your tackle box'}
-              </Fact>
+              {!entry.lure.stillInTackleBox && (
+                <Fact label="Note">
+                  <span className="muted">No longer in your tackle box</span>
+                </Fact>
+              )}
             </Facts>
           ) : (
             <p className="empty">No lure recorded.</p>
           )}
 
-          <h2>Conditions</h2>
+          <span className="section-label">Conditions</span>
           {entry.conditions ? (
             <Facts>
-              <Fact label="Air temperature">
-                {measurement(entry.conditions.airTemperatureC, 'C')}
-              </Fact>
-              <Fact label="Water temperature">
-                {measurement(entry.conditions.waterTemperatureC, 'C')}
+              <Fact label="Air">{measurement(entry.conditions.airTemperatureC, '°C')}</Fact>
+              <Fact label="Water">
+                {measurement(entry.conditions.waterTemperatureC, '°C')}
               </Fact>
               <Fact label="Wind">
                 {entry.conditions.windSpeedMetersPerSecond != null ||
@@ -108,11 +123,13 @@ export default function CatchDetail() {
                       ` from ${entry.conditions.windDirectionLabel}`}
                   </>
                 ) : (
-                  'Not recorded'
+                  <span className="muted">Not recorded</span>
                 )}
               </Fact>
               <Fact label="Sky">
-                {humanise(entry.conditions.skyCondition) ?? 'Not recorded'}
+                {humanise(entry.conditions.skyCondition) ?? (
+                  <span className="muted">Not recorded</span>
+                )}
               </Fact>
               <Fact label="Pressure">
                 {measurement(entry.conditions.barometricPressureHpa, 'hPa')}
@@ -125,11 +142,12 @@ export default function CatchDetail() {
                       ` at ${entry.conditions.tideHeightMeters} m`}
                   </>
                 ) : (
-                  'Not recorded'
+                  <span className="muted">Not recorded</span>
                 )}
               </Fact>
-              <Fact label="Observed at">{dateTime(entry.conditions.observedAt)}</Fact>
-              <Fact label="Source">{humanise(entry.conditions.source)}</Fact>
+              <Fact label="Source">
+                <span className="muted">{humanise(entry.conditions.source)}</span>
+              </Fact>
             </Facts>
           ) : (
             <p className="empty">No conditions recorded.</p>

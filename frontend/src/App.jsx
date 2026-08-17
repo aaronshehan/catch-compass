@@ -1,9 +1,5 @@
 import { Link, NavLink, Outlet } from 'react-router-dom';
 
-/**
- * The page shell: the React equivalent of layout.html. Every route renders
- * inside the <Outlet />.
- */
 export default function App() {
   return (
     <>
@@ -12,8 +8,12 @@ export default function App() {
           CatchCompass
         </Link>
         <nav>
-          <NavLink to="/catches">Journal</NavLink>
-          <NavLink to="/lures">Tackle</NavLink>
+          <NavLink to="/catches" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Journal
+          </NavLink>
+          <NavLink to="/lures" className={({ isActive }) => (isActive ? 'active' : '')}>
+            Tackle
+          </NavLink>
         </nav>
       </header>
 

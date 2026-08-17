@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 import { api } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
-import { LoadState } from '../components/Field.jsx';
-import { humanise, orNotRecorded } from '../format.js';
+import { Skeleton } from '../components/Field.jsx';
+import { humanise } from '../format.js';
 
 export default function TackleBox() {
   const { data: lures, error, loading } = useLoad(() => api.lures());
@@ -16,44 +16,31 @@ export default function TackleBox() {
         <Link className="button button--primary" to="/lures/new">
           Add a lure
         </Link>
-        <Link className="button" to="/catches">
-          Catch journal
-        </Link>
       </div>
 
-      <LoadState loading={loading} error={error} />
+      {error && <p className="notice notice--error">{error}</p>}
+      {loading && <Skeleton count={3} />}
 
       {lures && lures.length === 0 && (
         <p className="empty">
-          No lures yet. Add one and it will be selectable when you log a catch.
+          No lures yet. Add one and it becomes selectable when you log a catch.
         </p>
       )}
 
       {lures && lures.length > 0 && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Lure</th>
-                <th>Type</th>
-                <th>Size</th>
-                <th>Weight</th>
-                <th>Presentation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lures.map((lure) => (
-                <tr key={lure.id}>
-                  <td>{lure.displayName}</td>
-                  <td>{humanise(lure.type)}</td>
-                  <td>{orNotRecorded(lure.size)}</td>
-                  <td>{lure.weightGrams != null ? `${lure.weightGrams} g` : '-'}</td>
-                  <td>{humanise(lure.presentation) ?? '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="lure-list">
+          {lures.map((lure) => (
+            <li key={lure.id} className="lure-card">
+              <div className="lure-card__name">{lure.displayName}</div>
+              <div className="lure-card__meta">
+                <span className="chip">{humanise(lure.type)}</span>
+                {lure.size && <span className="chip">{lure.size}</span>}
+                {lure.weightGrams != null && <span className="chip">{lure.weightGrams} g</span>}
+                {lure.presentation && <span className="chip">{humanise(lure.presentation)}</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </main>
   );

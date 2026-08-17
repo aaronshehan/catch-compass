@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { api, ApiError } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
-import { Field, LoadState } from '../components/Field.jsx';
+import { Field, Group, Skeleton } from '../components/Field.jsx';
 import { humanise } from '../format.js';
 
 const EMPTY_CATCH = {
@@ -103,8 +103,7 @@ export default function NewCatch() {
           locationRecordedAt: new Date(position.timestamp).toISOString(),
         }));
         setLocationStatus(
-          `Location captured, accurate to about ${Math.round(accuracy)} m. ` +
-            'Check it below and correct it if it looks wrong.',
+          `Got it, accurate to about ${Math.round(accuracy)} m. Correct it below if it looks wrong.`,
         );
         setLocating(false);
       },
@@ -124,7 +123,7 @@ export default function NewCatch() {
       locationAccuracyMeters: '',
       locationRecordedAt: '',
     }));
-    setLocationStatus('Location cleared. This catch will be saved without coordinates.');
+    setLocationStatus('Cleared. This catch will be saved without coordinates.');
   }
 
   async function lookUpConditions() {
@@ -169,7 +168,7 @@ export default function NewCatch() {
       }));
 
       setConditionsStatus(
-        'Conditions filled in from Open-Meteo. Check them and correct anything that looks wrong.' +
+        'Filled in from Open-Meteo. Check it and correct anything that looks wrong.' +
           (result.tideState ? '' : ' Tide data is not available from this provider.'),
       );
     } catch {
@@ -208,21 +207,28 @@ export default function NewCatch() {
     }
   }
 
+  // A rejected field inside a collapsed section would be invisible, and the
+  // form would look like it failed for no reason. Any group holding an error
+  // opens itself.
+  const hasError = (...keys) => keys.some((key) => errors[key]);
+  const hasConditionsError = Object.keys(errors).some((key) => key.startsWith('conditions.'));
+
+  const locationSet = form.latitude !== '' && form.longitude !== '';
+
   return (
     <main>
-      <div className="actions">
-        <Link className="button" to="/catches">
-          Back to journal
-        </Link>
-      </div>
+      <Link className="back-link" to="/catches">
+        &#8592; Journal
+      </Link>
 
       <h1>Log a catch</h1>
 
-      <LoadState loading={loading} error={loadError} />
+      {loadError && <p className="notice notice--error">{loadError}</p>}
       {message && <p className="notice notice--error">{message}</p>}
       {errors.locationPairComplete && (
         <p className="notice notice--error">{errors.locationPairComplete}</p>
       )}
+      {loading && <Skeleton count={3} />}
 
       {data && (
         <form onSubmit={submit}>
@@ -255,6 +261,16 @@ export default function NewCatch() {
               />
             </Field>
 
+            <Field id="photo" label="Photo" error={errors.photo}>
+              <input
+                id="photo"
+                type="file"
+                accept="image/jpeg,image/png"
+                capture="environment"
+                onChange={(e) => setPhoto(e.target.files[0] ?? null)}
+              />
+            </Field>
+
             <Field id="lureId" label="Lure" error={errors.lureId}>
               <select
                 id="lureId"
@@ -269,48 +285,38 @@ export default function NewCatch() {
                 ))}
               </select>
             </Field>
-
-            <Field id="photo" label="Photo" error={errors.photo}>
-              <input
-                id="photo"
-                type="file"
-                accept="image/jpeg,image/png"
-                capture="environment"
-                onChange={(e) => setPhoto(e.target.files[0] ?? null)}
-              />
-            </Field>
           </fieldset>
 
-          <fieldset>
-            <legend>Measurements (optional)</legend>
+          <Group
+            title="Measurements"
+            hint="optional"
+            open={hasError('weightKg', 'lengthCm', 'circumferenceCm')}
+          >
+            <div className="field-pair">
+              <Field id="weightKg" label="Weight (kg)" error={errors.weightKg}>
+                <input
+                  id="weightKg"
+                  type="number"
+                  step="0.001"
+                  value={form.weightKg}
+                  onChange={(e) => update('weightKg', e.target.value)}
+                  aria-invalid={errors.weightKg ? 'true' : undefined}
+                />
+              </Field>
 
-            <Field id="weightKg" label="Weight (kg)" error={errors.weightKg}>
-              <input
-                id="weightKg"
-                type="number"
-                step="0.001"
-                value={form.weightKg}
-                onChange={(e) => update('weightKg', e.target.value)}
-                aria-invalid={errors.weightKg ? 'true' : undefined}
-              />
-            </Field>
+              <Field id="lengthCm" label="Length (cm)" error={errors.lengthCm}>
+                <input
+                  id="lengthCm"
+                  type="number"
+                  step="0.01"
+                  value={form.lengthCm}
+                  onChange={(e) => update('lengthCm', e.target.value)}
+                  aria-invalid={errors.lengthCm ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
-            <Field id="lengthCm" label="Length (cm)" error={errors.lengthCm}>
-              <input
-                id="lengthCm"
-                type="number"
-                step="0.01"
-                value={form.lengthCm}
-                onChange={(e) => update('lengthCm', e.target.value)}
-                aria-invalid={errors.lengthCm ? 'true' : undefined}
-              />
-            </Field>
-
-            <Field
-              id="circumferenceCm"
-              label="Circumference (cm)"
-              error={errors.circumferenceCm}
-            >
+            <Field id="circumferenceCm" label="Girth (cm)" error={errors.circumferenceCm}>
               <input
                 id="circumferenceCm"
                 type="number"
@@ -320,17 +326,19 @@ export default function NewCatch() {
                 aria-invalid={errors.circumferenceCm ? 'true' : undefined}
               />
             </Field>
-          </fieldset>
+          </Group>
 
-          <fieldset>
-            <legend>Location (optional)</legend>
-
+          <Group
+            title="Location"
+            hint={locationSet ? 'set' : 'optional'}
+            open={locationSet || hasError('latitude', 'longitude', 'locationPairComplete')}
+          >
             <div className="actions">
               <button type="button" onClick={useMyLocation} disabled={locating}>
-                {locating ? 'Locating...' : 'Use my current location'}
+                {locating ? 'Locating...' : 'Use my location'}
               </button>
-              <button type="button" onClick={clearLocation}>
-                Clear location
+              <button type="button" className="button--ghost" onClick={clearLocation}>
+                Clear
               </button>
             </div>
 
@@ -340,31 +348,33 @@ export default function NewCatch() {
               </p>
             )}
 
-            <Field id="latitude" label="Latitude" error={errors.latitude}>
-              <input
-                id="latitude"
-                type="number"
-                step="any"
-                value={form.latitude}
-                onChange={(e) => update('latitude', e.target.value)}
-                aria-invalid={errors.latitude ? 'true' : undefined}
-              />
-            </Field>
+            <div className="field-pair">
+              <Field id="latitude" label="Latitude" error={errors.latitude}>
+                <input
+                  id="latitude"
+                  type="number"
+                  step="any"
+                  value={form.latitude}
+                  onChange={(e) => update('latitude', e.target.value)}
+                  aria-invalid={errors.latitude ? 'true' : undefined}
+                />
+              </Field>
 
-            <Field id="longitude" label="Longitude" error={errors.longitude}>
-              <input
-                id="longitude"
-                type="number"
-                step="any"
-                value={form.longitude}
-                onChange={(e) => update('longitude', e.target.value)}
-                aria-invalid={errors.longitude ? 'true' : undefined}
-              />
-            </Field>
+              <Field id="longitude" label="Longitude" error={errors.longitude}>
+                <input
+                  id="longitude"
+                  type="number"
+                  step="any"
+                  value={form.longitude}
+                  onChange={(e) => update('longitude', e.target.value)}
+                  aria-invalid={errors.longitude ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
             <Field
               id="locationAccuracyMeters"
-              label="Accuracy (metres)"
+              label="Accuracy (m)"
               error={errors.locationAccuracyMeters}
             >
               <input
@@ -375,11 +385,13 @@ export default function NewCatch() {
                 onChange={(e) => update('locationAccuracyMeters', e.target.value)}
               />
             </Field>
-          </fieldset>
+          </Group>
 
-          <fieldset>
-            <legend>Conditions (optional)</legend>
-
+          <Group
+            title="Conditions"
+            hint={conditions.conditionsSource === 'MANUAL' ? 'optional' : 'from weather'}
+            open={hasConditionsError}
+          >
             <div className="actions">
               <button type="button" onClick={lookUpConditions} disabled={fetchingConditions}>
                 {fetchingConditions ? 'Looking up...' : 'Look up conditions'}
@@ -392,131 +404,143 @@ export default function NewCatch() {
               </p>
             )}
 
-            <Field
-              id="airTemperatureC"
-              label="Air temperature (C)"
-              error={errors['conditions.airTemperatureC']}
-            >
-              <input
+            <div className="field-pair">
+              <Field
                 id="airTemperatureC"
-                type="number"
-                step="0.1"
-                value={conditions.airTemperatureC}
-                onChange={(e) => updateConditions('airTemperatureC', e.target.value)}
-                aria-invalid={errors['conditions.airTemperatureC'] ? 'true' : undefined}
-              />
-            </Field>
+                label="Air (°C)"
+                error={errors['conditions.airTemperatureC']}
+              >
+                <input
+                  id="airTemperatureC"
+                  type="number"
+                  step="0.1"
+                  value={conditions.airTemperatureC}
+                  onChange={(e) => updateConditions('airTemperatureC', e.target.value)}
+                  aria-invalid={errors['conditions.airTemperatureC'] ? 'true' : undefined}
+                />
+              </Field>
 
-            <Field
-              id="waterTemperatureC"
-              label="Water temperature (C)"
-              error={errors['conditions.waterTemperatureC']}
-            >
-              <input
+              <Field
                 id="waterTemperatureC"
-                type="number"
-                step="0.1"
-                value={conditions.waterTemperatureC}
-                onChange={(e) => updateConditions('waterTemperatureC', e.target.value)}
-                aria-invalid={errors['conditions.waterTemperatureC'] ? 'true' : undefined}
-              />
-            </Field>
+                label="Water (°C)"
+                error={errors['conditions.waterTemperatureC']}
+              >
+                <input
+                  id="waterTemperatureC"
+                  type="number"
+                  step="0.1"
+                  value={conditions.waterTemperatureC}
+                  onChange={(e) => updateConditions('waterTemperatureC', e.target.value)}
+                  aria-invalid={errors['conditions.waterTemperatureC'] ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
-            <Field
-              id="windSpeedMetersPerSecond"
-              label="Wind speed (m/s)"
-              error={errors['conditions.windSpeedMetersPerSecond']}
-            >
-              <input
+            <div className="field-pair">
+              <Field
                 id="windSpeedMetersPerSecond"
-                type="number"
-                step="0.01"
-                value={conditions.windSpeedMetersPerSecond}
-                onChange={(e) => updateConditions('windSpeedMetersPerSecond', e.target.value)}
-                aria-invalid={
-                  errors['conditions.windSpeedMetersPerSecond'] ? 'true' : undefined
-                }
-              />
-            </Field>
+                label="Wind (m/s)"
+                error={errors['conditions.windSpeedMetersPerSecond']}
+              >
+                <input
+                  id="windSpeedMetersPerSecond"
+                  type="number"
+                  step="0.01"
+                  value={conditions.windSpeedMetersPerSecond}
+                  onChange={(e) => updateConditions('windSpeedMetersPerSecond', e.target.value)}
+                  aria-invalid={
+                    errors['conditions.windSpeedMetersPerSecond'] ? 'true' : undefined
+                  }
+                />
+              </Field>
 
-            <Field
-              id="windDirectionDegrees"
-              label="Wind direction (degrees it blows from)"
-              error={errors['conditions.windDirectionDegrees']}
-            >
-              <input
+              <Field
                 id="windDirectionDegrees"
-                type="number"
-                step="1"
-                min="0"
-                max="359"
-                value={conditions.windDirectionDegrees}
-                onChange={(e) => updateConditions('windDirectionDegrees', e.target.value)}
-                aria-invalid={errors['conditions.windDirectionDegrees'] ? 'true' : undefined}
-              />
-            </Field>
-
-            <Field id="skyCondition" label="Sky" error={errors['conditions.skyCondition']}>
-              <select
-                id="skyCondition"
-                value={conditions.skyCondition}
-                onChange={(e) => updateConditions('skyCondition', e.target.value)}
+                label="From (degrees)"
+                error={errors['conditions.windDirectionDegrees']}
               >
-                <option value="">Not recorded</option>
-                {data.options.skyConditions.map((sky) => (
-                  <option key={sky} value={sky}>
-                    {humanise(sky)}
-                  </option>
-                ))}
-              </select>
-            </Field>
+                <input
+                  id="windDirectionDegrees"
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="359"
+                  value={conditions.windDirectionDegrees}
+                  onChange={(e) => updateConditions('windDirectionDegrees', e.target.value)}
+                  aria-invalid={errors['conditions.windDirectionDegrees'] ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
-            <Field
-              id="barometricPressureHpa"
-              label="Pressure (hPa)"
-              error={errors['conditions.barometricPressureHpa']}
-            >
-              <input
+            <div className="field-pair">
+              <Field id="skyCondition" label="Sky" error={errors['conditions.skyCondition']}>
+                <select
+                  id="skyCondition"
+                  value={conditions.skyCondition}
+                  onChange={(e) => updateConditions('skyCondition', e.target.value)}
+                >
+                  <option value="">Not recorded</option>
+                  {data.options.skyConditions.map((sky) => (
+                    <option key={sky} value={sky}>
+                      {humanise(sky)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field
                 id="barometricPressureHpa"
-                type="number"
-                step="0.1"
-                value={conditions.barometricPressureHpa}
-                onChange={(e) => updateConditions('barometricPressureHpa', e.target.value)}
-                aria-invalid={errors['conditions.barometricPressureHpa'] ? 'true' : undefined}
-              />
-            </Field>
-
-            <Field id="tideState" label="Tide" error={errors['conditions.tideState']}>
-              <select
-                id="tideState"
-                value={conditions.tideState}
-                onChange={(e) => updateConditions('tideState', e.target.value)}
+                label="Pressure (hPa)"
+                error={errors['conditions.barometricPressureHpa']}
               >
-                <option value="">Not recorded</option>
-                {data.options.tideStates.map((tide) => (
-                  <option key={tide} value={tide}>
-                    {humanise(tide)}
-                  </option>
-                ))}
-              </select>
-            </Field>
+                <input
+                  id="barometricPressureHpa"
+                  type="number"
+                  step="0.1"
+                  value={conditions.barometricPressureHpa}
+                  onChange={(e) => updateConditions('barometricPressureHpa', e.target.value)}
+                  aria-invalid={errors['conditions.barometricPressureHpa'] ? 'true' : undefined}
+                />
+              </Field>
+            </div>
+
+            <div className="field-pair">
+              <Field id="tideState" label="Tide" error={errors['conditions.tideState']}>
+                <select
+                  id="tideState"
+                  value={conditions.tideState}
+                  onChange={(e) => updateConditions('tideState', e.target.value)}
+                >
+                  <option value="">Not recorded</option>
+                  {data.options.tideStates.map((tide) => (
+                    <option key={tide} value={tide}>
+                      {humanise(tide)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field
+                id="tideHeightMeters"
+                label="Tide height (m)"
+                error={errors['conditions.tideHeightMeters']}
+              >
+                <input
+                  id="tideHeightMeters"
+                  type="number"
+                  step="0.01"
+                  value={conditions.tideHeightMeters}
+                  onChange={(e) => updateConditions('tideHeightMeters', e.target.value)}
+                  aria-invalid={errors['conditions.tideHeightMeters'] ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
             <Field
-              id="tideHeightMeters"
-              label="Tide height (m)"
-              error={errors['conditions.tideHeightMeters']}
+              id="observedAt"
+              label="Observed at"
+              error={errors['conditions.observedAt']}
             >
-              <input
-                id="tideHeightMeters"
-                type="number"
-                step="0.01"
-                value={conditions.tideHeightMeters}
-                onChange={(e) => updateConditions('tideHeightMeters', e.target.value)}
-                aria-invalid={errors['conditions.tideHeightMeters'] ? 'true' : undefined}
-              />
-            </Field>
-
-            <Field id="observedAt" label="Conditions observed at" error={errors['conditions.observedAt']}>
               <input
                 id="observedAt"
                 type="datetime-local"
@@ -524,11 +548,10 @@ export default function NewCatch() {
                 onChange={(e) => updateConditions('observedAt', e.target.value)}
               />
             </Field>
-          </fieldset>
+          </Group>
 
-          <fieldset>
-            <legend>Notes</legend>
-            <Field id="notes" label="Notes" error={errors.notes}>
+          <Group title="Notes" hint="optional" open={hasError('notes')}>
+            <Field id="notes" label="Anything worth remembering" error={errors.notes}>
               <textarea
                 id="notes"
                 rows="4"
@@ -536,11 +559,13 @@ export default function NewCatch() {
                 onChange={(e) => update('notes', e.target.value)}
               />
             </Field>
-          </fieldset>
+          </Group>
 
-          <button type="submit" disabled={saving}>
-            {saving ? 'Saving...' : 'Save catch'}
-          </button>
+          <div className="submit-bar">
+            <button type="submit" disabled={saving}>
+              {saving ? 'Saving...' : 'Save catch'}
+            </button>
+          </div>
         </form>
       )}
     </main>

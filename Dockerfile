@@ -9,6 +9,10 @@ COPY mvnw pom.xml ./
 RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 COPY src/ src/
+COPY frontend/ frontend/
+
+# Builds the React bundle too: frontend-maven-plugin fetches its own Node, so
+# this image needs no Node installed.
 RUN ./mvnw clean package -DskipTests -B
 
 # Runtime stage: JRE only. Smaller, and ships no compiler to a public server.

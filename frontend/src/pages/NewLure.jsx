@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { api, ApiError } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
-import { Field, LoadState } from '../components/Field.jsx';
+import { Field, Group, Skeleton } from '../components/Field.jsx';
 import { humanise } from '../format.js';
 
 const EMPTY = {
@@ -36,8 +36,6 @@ export default function NewLure() {
     setErrors({});
     setMessage(null);
 
-    // Empty strings become null so optional fields stay genuinely absent
-    // rather than arriving as "" and failing type conversion.
     const payload = Object.fromEntries(
       Object.entries(form).map(([key, value]) => [key, value === '' ? null : value]),
     );
@@ -56,23 +54,26 @@ export default function NewLure() {
     }
   }
 
+  const detailErrors = ['brand', 'model', 'color', 'size', 'weightGrams', 'notes'].some(
+    (key) => errors[key],
+  );
+
   return (
     <main>
-      <div className="actions">
-        <Link className="button" to="/lures">
-          Back to tackle box
-        </Link>
-      </div>
+      <Link className="back-link" to="/lures">
+        &#8592; Tackle box
+      </Link>
 
       <h1>Add a lure</h1>
 
-      <LoadState loading={loading} error={optionsError} />
+      {optionsError && <p className="notice notice--error">{optionsError}</p>}
       {message && <p className="notice notice--error">{message}</p>}
+      {loading && <Skeleton count={2} />}
 
       {options && (
         <form onSubmit={submit}>
           <fieldset>
-            <legend>Lure</legend>
+            <legend>What is it</legend>
 
             <Field id="lureType" label="Type" error={errors.lureType}>
               <select
@@ -90,24 +91,28 @@ export default function NewLure() {
               </select>
             </Field>
 
-            <Field id="brand" label="Brand" error={errors.brand}>
-              <input
-                id="brand"
-                type="text"
-                value={form.brand}
-                onChange={(e) => update('brand', e.target.value)}
-              />
-            </Field>
+            <div className="field-pair">
+              <Field id="brand" label="Brand" error={errors.brand}>
+                <input
+                  id="brand"
+                  type="text"
+                  value={form.brand}
+                  onChange={(e) => update('brand', e.target.value)}
+                />
+              </Field>
 
-            <Field id="model" label="Model" error={errors.model}>
-              <input
-                id="model"
-                type="text"
-                value={form.model}
-                onChange={(e) => update('model', e.target.value)}
-              />
-            </Field>
+              <Field id="model" label="Model" error={errors.model}>
+                <input
+                  id="model"
+                  type="text"
+                  value={form.model}
+                  onChange={(e) => update('model', e.target.value)}
+                />
+              </Field>
+            </div>
+          </fieldset>
 
+          <Group title="Details" hint="optional" open={detailErrors}>
             <Field id="color" label="Colour" error={errors.color}>
               <input
                 id="color"
@@ -117,28 +122,30 @@ export default function NewLure() {
               />
             </Field>
 
-            <Field id="size" label="Size" error={errors.size}>
-              <input
-                id="size"
-                type="text"
-                placeholder="e.g. 3 inch, #4"
-                value={form.size}
-                onChange={(e) => update('size', e.target.value)}
-              />
-            </Field>
+            <div className="field-pair">
+              <Field id="size" label="Size" error={errors.size}>
+                <input
+                  id="size"
+                  type="text"
+                  placeholder="3 inch, #4"
+                  value={form.size}
+                  onChange={(e) => update('size', e.target.value)}
+                />
+              </Field>
 
-            <Field id="weightGrams" label="Weight (g)" error={errors.weightGrams}>
-              <input
-                id="weightGrams"
-                type="number"
-                step="0.01"
-                value={form.weightGrams}
-                onChange={(e) => update('weightGrams', e.target.value)}
-                aria-invalid={errors.weightGrams ? 'true' : undefined}
-              />
-            </Field>
+              <Field id="weightGrams" label="Weight (g)" error={errors.weightGrams}>
+                <input
+                  id="weightGrams"
+                  type="number"
+                  step="0.01"
+                  value={form.weightGrams}
+                  onChange={(e) => update('weightGrams', e.target.value)}
+                  aria-invalid={errors.weightGrams ? 'true' : undefined}
+                />
+              </Field>
+            </div>
 
-            <Field id="presentation" label="Presentation" error={errors.presentation}>
+            <Field id="presentation" label="Usually worked as" error={errors.presentation}>
               <select
                 id="presentation"
                 value={form.presentation}
@@ -161,11 +168,13 @@ export default function NewLure() {
                 onChange={(e) => update('notes', e.target.value)}
               />
             </Field>
-          </fieldset>
+          </Group>
 
-          <button type="submit" disabled={saving}>
-            {saving ? 'Saving...' : 'Save lure'}
-          </button>
+          <div className="submit-bar">
+            <button type="submit" disabled={saving}>
+              {saving ? 'Saving...' : 'Save lure'}
+            </button>
+          </div>
         </form>
       )}
     </main>
