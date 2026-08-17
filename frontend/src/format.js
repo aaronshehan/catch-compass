@@ -20,6 +20,25 @@ export function dateTime(isoString) {
   return dateTimeFormat.format(new Date(isoString));
 }
 
+const logDateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+
+const logTimeFormat = new Intl.DateTimeFormat(undefined, {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+});
+
+/** Logbook style: "16 AUG 2026 · 17:59". Deliberately fixed-format. */
+export function logDate(isoString) {
+  if (!isoString) return 'Not recorded';
+  const date = new Date(isoString);
+  return `${logDateFormat.format(date).toUpperCase()} · ${logTimeFormat.format(date)}`;
+}
+
 export function measurement(value, unit) {
   if (value === null || value === undefined) return 'Not recorded';
   return `${value} ${unit}`;

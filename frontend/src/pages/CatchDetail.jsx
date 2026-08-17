@@ -3,17 +3,17 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
 import { Skeleton } from '../components/Field.jsx';
-import { dateTime, humanise, measurement, orNotRecorded } from '../format.js';
+import { dateTime, humanise, logDate, measurement, orNotRecorded } from '../format.js';
 
-function Stat({ value, unit, label }) {
+function Figure({ value, unit, label }) {
   const missing = value === null || value === undefined;
   return (
-    <div className="stat">
-      <span className={missing ? 'stat__value stat__value--none' : 'stat__value'}>
-        {missing ? '–' : `${value}`}
-        {!missing && unit && <span className="muted" style={{ fontSize: '0.8rem' }}> {unit}</span>}
+    <div className="figure">
+      <span className={missing ? 'figure__value figure__value--none' : 'figure__value'}>
+        {missing ? '—' : `${value}`}
+        {!missing && unit && <span className="figure__unit">{unit}</span>}
       </span>
-      <span className="stat__label">{label}</span>
+      <span className="figure__label">{label}</span>
     </div>
   );
 }
@@ -26,11 +26,11 @@ function Facts({ children }) {
   );
 }
 
-function Fact({ label, children }) {
+function Fact({ label, prose, children }) {
   return (
     <div>
       <dt>{label}</dt>
-      <dd>{children}</dd>
+      <dd className={prose ? 'prose' : undefined}>{children}</dd>
     </div>
   );
 }
@@ -51,19 +51,29 @@ export default function CatchDetail() {
       {entry && (
         <>
           {entry.hasPhoto && (
-            <img className="hero-photo" src={entry.photoUrl} alt="Photo of the catch" />
+            <>
+              <img className="hero-photo" src={entry.photoUrl} alt="Photo of the catch" />
+              <p className="photo-caption">
+                <span>{logDate(entry.caughtAt)}</span>
+                {entry.location && (
+                  <span>
+                    {entry.location.latitude}, {entry.location.longitude}
+                  </span>
+                )}
+              </p>
+            </>
           )}
 
           <h1>{entry.species.commonName}</h1>
 
-          <div className="stat-row">
-            <Stat value={entry.measurements.weightKg} unit="kg" label="Weight" />
-            <Stat value={entry.measurements.lengthCm} unit="cm" label="Length" />
-            <Stat value={entry.measurements.circumferenceCm} unit="cm" label="Girth" />
+          <div className="figures">
+            <Figure value={entry.measurements.weightKg} unit="kg" label="Weight" />
+            <Figure value={entry.measurements.lengthCm} unit="cm" label="Length" />
+            <Figure value={entry.measurements.circumferenceCm} unit="cm" label="Girth" />
           </div>
 
           <Facts>
-            <Fact label="Caught">{dateTime(entry.caughtAt)}</Fact>
+            <Fact label="Caught">{logDate(entry.caughtAt)}</Fact>
             <Fact label="Species">
               {entry.species.scientificName ? (
                 <em className="muted">{entry.species.scientificName}</em>
@@ -83,7 +93,11 @@ export default function CatchDetail() {
                 <span className="muted">Not recorded</span>
               )}
             </Fact>
-            {entry.notes && <Fact label="Notes">{entry.notes}</Fact>}
+            {entry.notes && (
+              <Fact label="Notes" prose>
+                {entry.notes}
+              </Fact>
+            )}
           </Facts>
 
           <span className="section-label">Lure</span>
@@ -91,7 +105,9 @@ export default function CatchDetail() {
             <Facts>
               <Fact label="Type">{humanise(entry.lure.type)}</Fact>
               {entry.lure.description && (
-                <Fact label="Details">{entry.lure.description}</Fact>
+                <Fact label="Details" prose>
+                  {entry.lure.description}
+                </Fact>
               )}
             </Facts>
           ) : (

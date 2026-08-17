@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useLoad } from '../hooks/useLoad.js';
 import { Skeleton } from '../components/Field.jsx';
-import { dateTime } from '../format.js';
+import { logDate } from '../format.js';
 
 function EmptyThumb() {
   return (
-    <span className="catch-card__thumb catch-card__thumb--empty" aria-hidden="true">
+    <span className="log-row__thumb log-row__thumb--empty" aria-hidden="true">
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M2 12c3.5-5 7-7 11-7 4 0 7 3 9 7-2 4-5 7-9 7-4 0-7.5-2-11-7Z" />
@@ -40,31 +40,40 @@ export default function Journal() {
       )}
 
       {catches && catches.length > 0 && (
-        <ul className="catch-list">
-          {catches.map((entry) => (
+        <ol className="log">
+          {catches.map((entry, index) => (
             <li key={entry.id}>
-              <Link className="catch-card" to={`/catches/${entry.id}`}>
+              <Link className="log-row" to={`/catches/${entry.id}`}>
+                {/* Entry number: newest first, so the count runs down the page
+                    like a ledger written from the back. */}
+                <span className="log-row__num">
+                  {String(catches.length - index).padStart(2, '0')}
+                </span>
+
                 {entry.hasPhoto ? (
-                  <img className="catch-card__thumb" src={entry.photoUrl} alt="" loading="lazy" />
+                  <img className="log-row__thumb" src={entry.photoUrl} alt="" loading="lazy" />
                 ) : (
                   <EmptyThumb />
                 )}
 
-                <span className="catch-card__body">
-                  <span className="catch-card__title">{entry.species}</span>
-                  <span className="catch-card__date">{dateTime(entry.caughtAt)}</span>
+                <span className="log-row__body">
+                  <span className="log-row__species">{entry.species}</span>
+                  <span className="log-row__date">{logDate(entry.caughtAt)}</span>
+                </span>
 
-                  {(entry.weightKg != null || entry.lengthCm != null) && (
-                    <span className="catch-card__tags">
-                      {entry.weightKg != null && <span className="tag">{entry.weightKg} kg</span>}
-                      {entry.lengthCm != null && <span className="tag">{entry.lengthCm} cm</span>}
-                    </span>
+                <span className="log-row__data">
+                  {entry.weightKg != null && (
+                    <>
+                      {entry.weightKg} kg
+                      <br />
+                    </>
                   )}
+                  {entry.lengthCm != null && <>{entry.lengthCm} cm</>}
                 </span>
               </Link>
             </li>
           ))}
-        </ul>
+        </ol>
       )}
     </main>
   );
