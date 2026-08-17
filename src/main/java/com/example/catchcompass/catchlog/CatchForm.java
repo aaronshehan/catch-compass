@@ -1,5 +1,7 @@
 package com.example.catchcompass.catchlog;
 
+import com.example.catchcompass.conditions.ConditionsForm;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -68,6 +70,13 @@ public class CatchForm {
      */
     private MultipartFile photo;
 
+    /**
+     * Nested so the conditions fields validate as part of this form. Never null,
+     * so Thymeleaf can bind to it on a blank form.
+     */
+    @Valid
+    private ConditionsForm conditions = new ConditionsForm();
+
     public Long getSpeciesId() { return speciesId; }
     public void setSpeciesId(Long speciesId) { this.speciesId = speciesId; }
 
@@ -104,4 +113,7 @@ public class CatchForm {
 
     public MultipartFile getPhoto() { return photo; }
     public void setPhoto(MultipartFile photo) { this.photo = photo; }
+
+    public ConditionsForm getConditions() { return conditions; }
+    public void setConditions(ConditionsForm conditions) { this.conditions = conditions; }
 }

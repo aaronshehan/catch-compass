@@ -1,5 +1,9 @@
 package com.example.catchcompass.catchlog;
 
+import com.example.catchcompass.conditions.CatchConditions;
+import com.example.catchcompass.conditions.CatchConditionsRepository;
+import com.example.catchcompass.conditions.ConditionsForm;
+import com.example.catchcompass.conditions.ConditionsSource;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
 import org.springframework.stereotype.Service;
@@ -15,13 +19,16 @@ public class CatchService {
     private final CatchRepository catchRepository;
     private final SpeciesRepository speciesRepository;
     private final CatchPhotoService catchPhotoService;
+    private final CatchConditionsRepository catchConditionsRepository;
 
     public CatchService(CatchRepository catchRepository,
                         SpeciesRepository speciesRepository,
-                        CatchPhotoService catchPhotoService) {
+                        CatchPhotoService catchPhotoService,
+                        CatchConditionsRepository catchConditionsRepository) {
         this.catchRepository = catchRepository;
         this.speciesRepository = speciesRepository;
         this.catchPhotoService = catchPhotoService;
+        this.catchConditionsRepository = catchConditionsRepository;
     }
 
     /**
@@ -79,6 +86,33 @@ public class CatchService {
             catchPhotoService.attach(saved, form.getPhoto());
         }
 
+        saveConditionsIfAnyWereEntered(saved, form.getConditions());
+
         return saved;
+    }
+
+    /**
+     * A row of all-nulls is indistinguishable from "not recorded", so no
+     * conditions record is created unless the angler actually entered something.
+     */
+    private void saveConditionsIfAnyWereEntered(Catch catchRecord, ConditionsForm form) {
+        if (form == null || !form.hasAnyValue()) {
+            return;
+        }
+
+        CatchConditions conditions = new CatchConditions(catchRecord, ConditionsSource.MANUAL);
+        conditions.setAirTemperatureC(form.getAirTemperatureC());
+        conditions.setWaterTemperatureC(form.getWaterTemperatureC());
+        conditions.setWindSpeedMetersPerSecond(form.getWindSpeedMetersPerSecond());
+        conditions.setWindDirectionDegrees(form.getWindDirectionDegrees());
+        conditions.setTideHeightMeters(form.getTideHeightMeters());
+        conditions.setTideState(form.getTideState());
+        conditions.setBarometricPressureHpa(form.getBarometricPressureHpa());
+        conditions.setSkyCondition(form.getSkyCondition());
+        conditions.setObservedAt(form.getObservedAt() == null
+                ? null
+                : form.getObservedAt().atZone(ZoneId.systemDefault()).toInstant());
+
+        catchConditionsRepository.save(conditions);
     }
 }

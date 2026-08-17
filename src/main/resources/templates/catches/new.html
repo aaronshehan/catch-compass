@@ -97,6 +97,81 @@
         </p>
     </fieldset>
 
+    <fieldset>
+        <legend>Conditions (optional)</legend>
+
+        <p>
+            <label for="airTemperatureC">Air temperature (C)</label><br>
+            <input type="number" step="0.1" id="airTemperatureC"
+                   th:field="*{conditions.airTemperatureC}">
+            <span th:if="${#fields.hasErrors('conditions.airTemperatureC')}"
+                  th:errors="*{conditions.airTemperatureC}">error</span>
+        </p>
+
+        <p>
+            <label for="waterTemperatureC">Water temperature (C)</label><br>
+            <input type="number" step="0.1" id="waterTemperatureC"
+                   th:field="*{conditions.waterTemperatureC}">
+            <span th:if="${#fields.hasErrors('conditions.waterTemperatureC')}"
+                  th:errors="*{conditions.waterTemperatureC}">error</span>
+        </p>
+
+        <p>
+            <label for="windSpeedMetersPerSecond">Wind speed (m/s)</label><br>
+            <input type="number" step="0.01" id="windSpeedMetersPerSecond"
+                   th:field="*{conditions.windSpeedMetersPerSecond}">
+            <span th:if="${#fields.hasErrors('conditions.windSpeedMetersPerSecond')}"
+                  th:errors="*{conditions.windSpeedMetersPerSecond}">error</span>
+        </p>
+
+        <p>
+            <label for="windDirectionDegrees">Wind direction (degrees it blows from)</label><br>
+            <input type="number" step="1" min="0" max="359" id="windDirectionDegrees"
+                   th:field="*{conditions.windDirectionDegrees}">
+            <span th:if="${#fields.hasErrors('conditions.windDirectionDegrees')}"
+                  th:errors="*{conditions.windDirectionDegrees}">error</span>
+        </p>
+
+        <p>
+            <label for="skyCondition">Sky</label><br>
+            <select id="skyCondition" th:field="*{conditions.skyCondition}">
+                <option value="">Not recorded</option>
+                <option th:each="sky : ${skyConditions}"
+                        th:value="${sky}" th:text="${sky}">sky</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="barometricPressureHpa">Pressure (hPa)</label><br>
+            <input type="number" step="0.1" id="barometricPressureHpa"
+                   th:field="*{conditions.barometricPressureHpa}">
+            <span th:if="${#fields.hasErrors('conditions.barometricPressureHpa')}"
+                  th:errors="*{conditions.barometricPressureHpa}">error</span>
+        </p>
+
+        <p>
+            <label for="tideState">Tide</label><br>
+            <select id="tideState" th:field="*{conditions.tideState}">
+                <option value="">Not recorded</option>
+                <option th:each="tide : ${tideStates}"
+                        th:value="${tide}" th:text="${tide}">tide</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="tideHeightMeters">Tide height (m)</label><br>
+            <input type="number" step="0.01" id="tideHeightMeters"
+                   th:field="*{conditions.tideHeightMeters}">
+            <span th:if="${#fields.hasErrors('conditions.tideHeightMeters')}"
+                  th:errors="*{conditions.tideHeightMeters}">error</span>
+        </p>
+
+        <p>
+            <label for="observedAt">Conditions observed at</label><br>
+            <input type="datetime-local" id="observedAt" th:field="*{conditions.observedAt}">
+        </p>
+    </fieldset>
+
     <p>
         <label for="notes">Notes</label><br>
         <textarea id="notes" rows="4" cols="40" th:field="*{notes}"></textarea>

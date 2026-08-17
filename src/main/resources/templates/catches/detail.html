@@ -44,5 +44,46 @@
     <dd th:text="${catchRecord.notes != null ? catchRecord.notes : 'None'}">notes</dd>
 </dl>
 
+<h2>Conditions</h2>
+
+<p th:if="${conditions == null}">No conditions recorded.</p>
+
+<dl th:if="${conditions != null}">
+    <dt>Air temperature</dt>
+    <dd th:text="${conditions.airTemperatureC != null ? conditions.airTemperatureC + ' C' : 'Not recorded'}">air</dd>
+
+    <dt>Water temperature</dt>
+    <dd th:text="${conditions.waterTemperatureC != null ? conditions.waterTemperatureC + ' C' : 'Not recorded'}">water</dd>
+
+    <dt>Wind</dt>
+    <dd th:if="${conditions.windSpeedMetersPerSecond != null or conditions.windDirectionDegrees != null}">
+        <span th:if="${conditions.windSpeedMetersPerSecond != null}"
+              th:text="${conditions.windSpeedMetersPerSecond} + ' m/s'">speed</span>
+        <span th:if="${conditions.windDirectionDegrees != null}"
+              th:text="'from ' + ${conditions.windDirectionLabel} + ' (' + ${conditions.windDirectionDegrees} + ')'">direction</span>
+    </dd>
+    <dd th:if="${conditions.windSpeedMetersPerSecond == null and conditions.windDirectionDegrees == null}">Not recorded</dd>
+
+    <dt>Sky</dt>
+    <dd th:text="${conditions.skyCondition != null ? conditions.skyCondition : 'Not recorded'}">sky</dd>
+
+    <dt>Pressure</dt>
+    <dd th:text="${conditions.barometricPressureHpa != null ? conditions.barometricPressureHpa + ' hPa' : 'Not recorded'}">pressure</dd>
+
+    <dt>Tide</dt>
+    <dd th:if="${conditions.tideState != null or conditions.tideHeightMeters != null}">
+        <span th:if="${conditions.tideState != null}" th:text="${conditions.tideState}">state</span>
+        <span th:if="${conditions.tideHeightMeters != null}"
+              th:text="'at ' + ${conditions.tideHeightMeters} + ' m'">height</span>
+    </dd>
+    <dd th:if="${conditions.tideState == null and conditions.tideHeightMeters == null}">Not recorded</dd>
+
+    <dt>Observed at</dt>
+    <dd th:text="${conditions.observedAt != null ? conditions.observedAt : 'Not recorded'}">observed</dd>
+
+    <dt>Source</dt>
+    <dd th:text="${conditions.conditionsSource}">source</dd>
+</dl>
+
 </body>
 </html>

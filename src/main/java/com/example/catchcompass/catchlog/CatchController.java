@@ -1,5 +1,8 @@
 package com.example.catchcompass.catchlog;
 
+import com.example.catchcompass.conditions.CatchConditionsRepository;
+import com.example.catchcompass.conditions.SkyCondition;
+import com.example.catchcompass.conditions.TideState;
 import com.example.catchcompass.shared.CurrentUser;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
@@ -22,13 +25,26 @@ public class CatchController {
     private final CatchService catchService;
     private final SpeciesRepository speciesRepository;
     private final CatchPhotoRepository catchPhotoRepository;
+    private final CatchConditionsRepository catchConditionsRepository;
 
     public CatchController(CatchService catchService,
                            SpeciesRepository speciesRepository,
-                           CatchPhotoRepository catchPhotoRepository) {
+                           CatchPhotoRepository catchPhotoRepository,
+                           CatchConditionsRepository catchConditionsRepository) {
         this.catchService = catchService;
         this.speciesRepository = speciesRepository;
         this.catchPhotoRepository = catchPhotoRepository;
+        this.catchConditionsRepository = catchConditionsRepository;
+    }
+
+    @ModelAttribute("tideStates")
+    public TideState[] tideStates() {
+        return TideState.values();
+    }
+
+    @ModelAttribute("skyConditions")
+    public SkyCondition[] skyConditions() {
+        return SkyCondition.values();
     }
 
     /**
@@ -85,6 +101,8 @@ public class CatchController {
         model.addAttribute("catchRecord", catchService.findOwned(id, CurrentUser.DEV_USER_ID));
         model.addAttribute("hasPhoto",
                 catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(id).isPresent());
+        model.addAttribute("conditions",
+                catchConditionsRepository.findById(id).orElse(null));
         return "catches/detail";
     }
 

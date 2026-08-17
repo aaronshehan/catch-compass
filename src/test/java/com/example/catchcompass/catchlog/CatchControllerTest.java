@@ -1,5 +1,6 @@
 package com.example.catchcompass.catchlog;
 
+import com.example.catchcompass.conditions.CatchConditionsRepository;
 import com.example.catchcompass.species.SpeciesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ class CatchControllerTest {
 
     @MockitoBean
     private CatchPhotoRepository catchPhotoRepository;
+
+    @MockitoBean
+    private CatchConditionsRepository catchConditionsRepository;
 
     private static String anHourAgo() {
         return LocalDateTime.now().minusHours(1).toString();
@@ -101,6 +105,28 @@ class CatchControllerTest {
                         .param("weightKg", "2.45"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/catches/42"));
+    }
+
+    @Test
+    void outOfRangeWindDirectionIsRejected() throws Exception {
+        mockMvc.perform(post("/catches")
+                        .param("speciesId", "1")
+                        .param("caughtAt", anHourAgo())
+                        .param("conditions.windDirectionDegrees", "360"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasFieldErrors(
+                        "catchForm", "conditions.windDirectionDegrees"));
+    }
+
+    @Test
+    void impossibleWaterTemperatureIsRejected() throws Exception {
+        mockMvc.perform(post("/catches")
+                        .param("speciesId", "1")
+                        .param("caughtAt", anHourAgo())
+                        .param("conditions.waterTemperatureC", "300"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasFieldErrors(
+                        "catchForm", "conditions.waterTemperatureC"));
     }
 
     @Test
