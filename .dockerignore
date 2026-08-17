@@ -1,0 +1,9 @@
+target/
+storage/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+HELP.md
+compose.yaml
