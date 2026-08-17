@@ -50,6 +50,12 @@ public class ConditionsForm {
     private LocalDateTime observedAt;
 
     /**
+     * Maintained by the browser: MANUAL until conditions are fetched, then
+     * WEATHER_API, then WEATHER_API_EDITED as soon as any field is touched.
+     */
+    private ConditionsSource conditionsSource = ConditionsSource.MANUAL;
+
+    /**
      * Whether the angler entered anything at all. Used to decide between saving
      * a conditions row and saving none, rather than storing a row of nulls that
      * is indistinguishable from "not recorded".
@@ -92,4 +98,10 @@ public class ConditionsForm {
 
     public LocalDateTime getObservedAt() { return observedAt; }
     public void setObservedAt(LocalDateTime v) { this.observedAt = v; }
+
+    public ConditionsSource getConditionsSource() {
+        return conditionsSource == null ? ConditionsSource.MANUAL : conditionsSource;
+    }
+
+    public void setConditionsSource(ConditionsSource v) { this.conditionsSource = v; }
 }

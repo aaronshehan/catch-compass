@@ -125,7 +125,7 @@ public class CatchService {
             return;
         }
 
-        CatchConditions conditions = new CatchConditions(catchRecord, ConditionsSource.MANUAL);
+        CatchConditions conditions = new CatchConditions(catchRecord, form.getConditionsSource());
         conditions.setAirTemperatureC(form.getAirTemperatureC());
         conditions.setWaterTemperatureC(form.getWaterTemperatureC());
         conditions.setWindSpeedMetersPerSecond(form.getWindSpeedMetersPerSecond());

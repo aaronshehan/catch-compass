@@ -111,6 +111,14 @@
         <legend>Conditions (optional)</legend>
 
         <p>
+            <button type="button" data-conditions-request>Look up conditions</button>
+        </p>
+
+        <p data-conditions-status role="status" aria-live="polite"></p>
+
+        <input type="hidden" id="conditionsSource" th:field="*{conditions.conditionsSource}">
+
+        <p>
             <label for="airTemperatureC">Air temperature (C)</label><br>
             <input type="number" step="0.1" id="airTemperatureC"
                    th:field="*{conditions.airTemperatureC}">
@@ -193,6 +201,7 @@
 </form>
 
 <script th:src="@{/js/catch-location.js}" defer></script>
+<script th:src="@{/js/catch-conditions.js}" defer></script>
 
 </body>
 </html>
