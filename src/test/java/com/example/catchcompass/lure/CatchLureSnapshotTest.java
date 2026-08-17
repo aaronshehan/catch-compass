@@ -5,6 +5,8 @@ import com.example.catchcompass.catchlog.Catch;
 import com.example.catchcompass.catchlog.CatchRepository;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
+import com.example.catchcompass.user.User;
+import com.example.catchcompass.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,8 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(TestcontainersConfiguration.class)
 class CatchLureSnapshotTest {
 
-    private static final Long ALICE = 1L;
-    private static final Long BOB = 2L;
+    // Real user rows now: since V6 added the foreign key, an arbitrary id
+    // no longer works. That is the constraint doing its job.
+    private Long ALICE;
+    private Long BOB;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CatchRepository catchRepository;
@@ -48,6 +55,8 @@ class CatchLureSnapshotTest {
 
     @BeforeEach
     void loadSeededSpecies() {
+        ALICE = userRepository.save(new User("alice", "irrelevant-hash")).getId();
+        BOB = userRepository.save(new User("bob", "irrelevant-hash")).getId();
         anySpecies = speciesRepository.findByActiveTrueOrderByCommonName().get(0);
     }
 

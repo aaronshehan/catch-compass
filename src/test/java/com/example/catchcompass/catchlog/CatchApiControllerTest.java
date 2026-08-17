@@ -5,6 +5,7 @@ import com.example.catchcompass.lure.CatchLureSnapshotRepository;
 import com.example.catchcompass.shared.ApiExceptionHandler;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.storage.PhotoStorage;
+import com.example.catchcompass.user.CatchCompassUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -21,6 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -54,13 +57,16 @@ class CatchApiControllerTest {
     @MockitoBean
     private PhotoStorage photoStorage;
 
+    private static final CatchCompassUser ANGLER =
+            new CatchCompassUser(1L, "angler", "irrelevant-hash", true);
+
     private static String anHourAgo() {
         return LocalDateTime.now().minusHours(1).toString();
     }
 
     @Test
     void emptySubmissionReportsEveryMissingField() throws Exception {
-        mockMvc.perform(multipart("/api/catches"))
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Validation failed"))
                 .andExpect(jsonPath("$.errors.speciesId").exists())
@@ -69,7 +75,7 @@ class CatchApiControllerTest {
 
     @Test
     void futureCatchTimeIsRejected() throws Exception {
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", LocalDateTime.now().plusDays(1).toString()))
                 .andExpect(status().isBadRequest())
@@ -78,7 +84,7 @@ class CatchApiControllerTest {
 
     @Test
     void negativeWeightIsRejected() throws Exception {
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", anHourAgo())
                         .param("weightKg", "-2.5"))
@@ -88,7 +94,7 @@ class CatchApiControllerTest {
 
     @Test
     void latitudeWithoutLongitudeIsRejected() throws Exception {
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", anHourAgo())
                         .param("latitude", "44.5"))
@@ -98,7 +104,7 @@ class CatchApiControllerTest {
 
     @Test
     void outOfRangeWindDirectionIsRejected() throws Exception {
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", anHourAgo())
                         .param("conditions.windDirectionDegrees", "400"))
@@ -108,7 +114,7 @@ class CatchApiControllerTest {
 
     @Test
     void impossibleWaterTemperatureIsRejected() throws Exception {
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", anHourAgo())
                         .param("conditions.waterTemperatureC", "300"))
@@ -121,7 +127,7 @@ class CatchApiControllerTest {
         given(catchService.create(any(), any()))
                 .willThrow(new PhotoUploadException("Photos must be a JPEG or PNG image"));
 
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .file(new MockMultipartFile(
                                 "photo", "notes.txt", "text/plain", "not an image".getBytes()))
                         .param("speciesId", "1")
@@ -138,7 +144,7 @@ class CatchApiControllerTest {
         given(catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(42L))
                 .willReturn(Optional.empty());
 
-        mockMvc.perform(multipart("/api/catches")
+        mockMvc.perform(multipart("/api/catches").with(user(ANGLER)).with(csrf())
                         .param("speciesId", "1")
                         .param("caughtAt", anHourAgo())
                         .param("weightKg", "2.45"))
@@ -153,7 +159,7 @@ class CatchApiControllerTest {
         given(catchService.findOwned(eq(99L), any()))
                 .willThrow(new CatchNotFoundException(99L));
 
-        mockMvc.perform(get("/api/catches/99"))
+        mockMvc.perform(get("/api/catches/99").with(user(ANGLER)))
                 .andExpect(status().isNotFound());
     }
 
@@ -165,7 +171,7 @@ class CatchApiControllerTest {
         given(catchService.findJournal(any())).willReturn(java.util.List.of(entry));
         given(catchPhotoRepository.findCatchIdsWithPhotos(any())).willReturn(java.util.List.of());
 
-        mockMvc.perform(get("/api/catches"))
+        mockMvc.perform(get("/api/catches").with(user(ANGLER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(7))
                 .andExpect(jsonPath("$[0].species").value("Largemouth Bass"))

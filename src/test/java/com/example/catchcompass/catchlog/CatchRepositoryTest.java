@@ -3,6 +3,8 @@ package com.example.catchcompass.catchlog;
 import com.example.catchcompass.TestcontainersConfiguration;
 import com.example.catchcompass.species.Species;
 import com.example.catchcompass.species.SpeciesRepository;
+import com.example.catchcompass.user.User;
+import com.example.catchcompass.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import(TestcontainersConfiguration.class)
 class CatchRepositoryTest {
 
-    private static final Long ALICE = 1L;
-    private static final Long BOB = 2L;
+    // Real user rows now: since V6 added the foreign key, an arbitrary id
+    // no longer works. That is the constraint doing its job.
+    private Long ALICE;
+    private Long BOB;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CatchRepository catchRepository;
@@ -42,6 +49,8 @@ class CatchRepositoryTest {
 
     @BeforeEach
     void loadSeededSpecies() {
+        ALICE = userRepository.save(new User("alice", "irrelevant-hash")).getId();
+        BOB = userRepository.save(new User("bob", "irrelevant-hash")).getId();
         List<Species> species = speciesRepository.findByActiveTrueOrderByCommonName();
         assertThat(species)
                 .as("V1 migration should have seeded species")

@@ -1,6 +1,7 @@
 package com.example.catchcompass.lure;
 
-import com.example.catchcompass.shared.CurrentUser;
+import com.example.catchcompass.user.CatchCompassUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,15 +22,16 @@ public class LureApiController {
     }
 
     @GetMapping
-    public List<LureView> tackleBox() {
-        return lureService.findTackleBox(CurrentUser.DEV_USER_ID).stream()
+    public List<LureView> tackleBox(@AuthenticationPrincipal CatchCompassUser user) {
+        return lureService.findTackleBox(user.getId()).stream()
                 .map(LureView::from)
                 .toList();
     }
 
     @PostMapping
-    public ResponseEntity<LureView> create(@Valid @RequestBody LureForm form) {
-        Lure saved = lureService.create(CurrentUser.DEV_USER_ID, form);
+    public ResponseEntity<LureView> create(@Valid @RequestBody LureForm form,
+                                          @AuthenticationPrincipal CatchCompassUser user) {
+        Lure saved = lureService.create(user.getId(), form);
         return ResponseEntity
                 .created(URI.create("/api/lures/" + saved.getId()))
                 .body(LureView.from(saved));

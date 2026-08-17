@@ -2,7 +2,8 @@ package com.example.catchcompass.catchlog;
 
 import com.example.catchcompass.conditions.CatchConditionsRepository;
 import com.example.catchcompass.lure.CatchLureSnapshotRepository;
-import com.example.catchcompass.shared.CurrentUser;
+import com.example.catchcompass.user.CatchCompassUser;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.example.catchcompass.storage.PhotoStorage;
 import jakarta.validation.Valid;
 import org.springframework.http.CacheControl;
@@ -37,8 +38,8 @@ public class CatchApiController {
     }
 
     @GetMapping
-    public List<CatchResponse.Summary> journal() {
-        List<Catch> catches = catchService.findJournal(CurrentUser.DEV_USER_ID);
+    public List<CatchResponse.Summary> journal(@AuthenticationPrincipal CatchCompassUser user) {
+        List<Catch> catches = catchService.findJournal(user.getId());
         Set<Long> withPhotos = photoIdsFor(catches);
 
         return catches.stream()
@@ -47,8 +48,9 @@ public class CatchApiController {
     }
 
     @GetMapping("/{id}")
-    public CatchResponse.Detail detail(@PathVariable Long id) {
-        Catch catchRecord = catchService.findOwned(id, CurrentUser.DEV_USER_ID);
+    public CatchResponse.Detail detail(@PathVariable Long id,
+                                      @AuthenticationPrincipal CatchCompassUser user) {
+        Catch catchRecord = catchService.findOwned(id, user.getId());
 
         return CatchResponse.Detail.from(
                 catchRecord,
@@ -66,18 +68,20 @@ public class CatchApiController {
      * and ApiExceptionHandler renders it as JSON, which is what the client wants.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CatchResponse.Detail> create(@Valid @ModelAttribute CatchForm form) {
-        Catch saved = catchService.create(CurrentUser.DEV_USER_ID, form);
+    public ResponseEntity<CatchResponse.Detail> create(@Valid @ModelAttribute CatchForm form,
+                                                      @AuthenticationPrincipal CatchCompassUser user) {
+        Catch saved = catchService.create(user.getId(), form);
 
         return ResponseEntity
                 .created(URI.create("/api/catches/" + saved.getId()))
-                .body(detail(saved.getId()));
+                .body(detail(saved.getId(), user));
     }
 
     @GetMapping("/{id}/photo")
-    public ResponseEntity<byte[]> photo(@PathVariable Long id) {
+    public ResponseEntity<byte[]> photo(@PathVariable Long id,
+                                        @AuthenticationPrincipal CatchCompassUser user) {
         // Ownership first, always, before a byte is read from storage.
-        catchService.findOwned(id, CurrentUser.DEV_USER_ID);
+        catchService.findOwned(id, user.getId());
 
         CatchPhoto photo = catchPhotoRepository.findFirstByCatchRecordIdOrderByIdAsc(id)
                 .orElseThrow(() -> new CatchNotFoundException(id));
