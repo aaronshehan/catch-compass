@@ -647,6 +647,45 @@ select[aria-invalid='true']:focus {
   width: 100%;
 }
 
+/* ------------------------------------------------------------ auth ------ */
+
+.auth-page {
+  max-width: 26rem;
+  padding-top: 3rem;
+}
+
+.auth-intro {
+  margin-top: -0.75rem;
+  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
+}
+
+.auth-switch {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--ink-faint);
+}
+
+.auth-switch a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+}
+
+.signout {
+  min-height: 38px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+
 /* ------------------------------------------------------ tackle box ------ */
 
 .lure-list {
